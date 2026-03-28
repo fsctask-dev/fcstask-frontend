@@ -1,23 +1,28 @@
-import { useNavigate } from 'react-router-dom'
-import { useSignupVM } from '../viewmodels/useSignupVM'
+import { useNavigate, Link } from 'react-router-dom'
+import { useSigninVM } from '../viewmodels/useSigninVM'
+import { useAuth } from '../context/AuthContext'
 import './Pages.css'
 
-export function SignupPage() {
-  const { form, updateField, submit, loading, error } = useSignupVM()
+export function SigninPage() {
+  const { form, updateField, submit, loading, error } = useSigninVM()
+  const { reload } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     const ok = await submit()
-    if (ok) navigate('/signup/finish')
+    if (ok) {
+      reload()
+      navigate('/')
+    }
   }
 
   return (
     <section className="auth-card">
       <div className="auth-card__header">
-        <p className="eyebrow">Register</p>
-        <h1>Join FCS Task</h1>
-        <p className="subtle">Create your account to get started.</p>
+        <p className="eyebrow">Welcome back</p>
+        <h1>Sign in</h1>
+        <p className="subtle">Enter your username and password.</p>
       </div>
 
       <form className="auth-form" onSubmit={handleSubmit}>
@@ -32,16 +37,6 @@ export function SignupPage() {
           />
         </label>
         <label>
-          Email
-          <input
-            className="input"
-            type="email"
-            value={form.email}
-            onChange={(e) => updateField('email', e.target.value)}
-            required
-          />
-        </label>
-        <label>
           Password
           <input
             className="input"
@@ -52,11 +47,11 @@ export function SignupPage() {
           />
         </label>
         <div className="auth-actions">
-          <button className="btn btn-ghost" type="button" onClick={() => navigate('/')}>
-            Cancel
-          </button>
+          <Link className="btn btn-ghost" to="/signup">
+            Register
+          </Link>
           <button className="btn" type="submit" disabled={loading}>
-            {loading ? 'Registering…' : 'Continue'}
+            {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </div>
       </form>

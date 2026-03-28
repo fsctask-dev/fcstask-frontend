@@ -1,13 +1,35 @@
+import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { coursesShort, currentUser } from '../mock/data'
+import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../hooks/useTheme'
+import { getCourses, courseDTOToModel, signOut } from '../api/endpoints'
+import type { Course } from '../models/types'
 import './MainLayout.css'
 
 export function MainLayout() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { user, reload } = useAuth()
+  const { theme, toggle: toggleTheme } = useTheme()
   const isCourseRoute = location.pathname.startsWith('/course/')
   const isSignup = location.pathname.startsWith('/signup')
   const courseBase = isCourseRoute ? location.pathname.split('/').slice(0, 3).join('/') : ''
+
+  const [courses, setCourses] = useState<Course[]>([])
+
+  const handleSignOut = async () => {
+    await signOut().catch(() => {})
+    reload()
+    navigate('/')
+  }
+
+  useEffect(() => {
+    if (isCourseRoute) {
+      getCourses()
+        .then((dtos) => setCourses(dtos.map(courseDTOToModel)))
+        .catch(() => {})
+    }
+  }, [isCourseRoute])
 
   if (isSignup) {
     return (
@@ -65,16 +87,16 @@ export function MainLayout() {
         </nav>
 
         <div className="topbar__actions">
-          {isCourseRoute && (
+          {isCourseRoute && courses.length > 0 && (
             <div className="course-switch">
               <span className="course-switch__label">Course</span>
               <div className="course-switch__control">
                 <select
                   className="course-switch__select"
-                  defaultValue={coursesShort[0]?.url}
+                  defaultValue={courses[0]?.url}
                   onChange={(event) => navigate(event.target.value)}
                 >
-                  {coursesShort.map((course) => (
+                  {courses.map((course) => (
                     <option key={course.url} value={course.url}>
                       {course.name}
                     </option>
@@ -87,13 +109,24 @@ export function MainLayout() {
             </div>
           )}
 
-          <div className="user-chip">
-            <span className="user-chip__initials">{currentUser.initials}</span>
-            <div>
-              <div className="user-chip__name">{currentUser.username}</div>
-              <div className="user-chip__role">{currentUser.role.replace('_', ' ')}</div>
+          <button className="theme-toggle" onClick={toggleTheme} title="Toggle theme" aria-label="Toggle theme">
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+
+          {user ? (
+            <div className="user-chip" style={{ cursor: 'pointer' }} onClick={handleSignOut} title="Sign out">
+              <span className="user-chip__initials">{user.initials}</span>
+              <div>
+                <div className="user-chip__name">{user.username}</div>
+                <div className="user-chip__role">{user.role.replace('_', ' ')}</div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <>
+              <Link to="/signin" className="btn btn-ghost">Sign in</Link>
+              <Link to="/signup" className="btn">Sign up</Link>
+            </>
+          )}
         </div>
       </header>
 

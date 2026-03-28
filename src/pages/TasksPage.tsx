@@ -2,7 +2,11 @@ import { useTasksVM } from '../viewmodels/useTasksVM'
 import './Pages.css'
 
 export function TasksPage() {
-  const { board, groups, showPastDeadlines, togglePastDeadlines } = useTasksVM()
+  const { board, groups, showPastDeadlines, togglePastDeadlines, loading, error } = useTasksVM()
+
+  if (loading) return <div className="page-grid"><p className="subtle">Loading board…</p></div>
+  if (error) return <div className="page-grid"><p className="error-msg">Error: {error}</p></div>
+  if (!board) return null
 
   return (
     <section className="page-grid">
@@ -35,7 +39,6 @@ export function TasksPage() {
             <div className="deadlines">
               {group.deadlines.map((deadline) => {
                 const shouldHide = !showPastDeadlines && deadline.status === 'expired'
-
                 return (
                   <div
                     key={deadline.id}

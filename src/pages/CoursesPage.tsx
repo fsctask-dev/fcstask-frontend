@@ -3,15 +3,11 @@ import { useCoursesVM } from '../viewmodels/useCoursesVM'
 import './Pages.css'
 
 export function CoursesPage() {
-  const { activeCourses, finishedCourses, showFinished, toggleFinished } = useCoursesVM()
-  const courseMeta: Record<string, { progress: number; next: string }> = {
-    algorithms: { progress: 63, next: 'Next deadline in 3 days' },
-    mlops: { progress: 82, next: 'Next deadline in 8 days' },
-    rust: { progress: 12, next: 'Schedule starts soon' },
-    golang: { progress: 100, next: 'Course finished' },
-    'advanced-cpp': { progress: 48, next: 'Next deadline in 5 days' },
-    'advanced-python': { progress: 0, next: 'Schedule starts soon' },
-  }
+  const { activeCourses, finishedCourses, showFinished, toggleFinished, loading, error } =
+    useCoursesVM()
+
+  if (loading) return <div className="page-grid"><p className="subtle">Loading courses…</p></div>
+  if (error) return <div className="page-grid"><p className="error-msg">Error: {error}</p></div>
 
   return (
     <section className="page-grid">
@@ -61,35 +57,30 @@ export function CoursesPage() {
       <div className="panel">
         <h2>Active courses</h2>
         <div className="course-grid">
-          {activeCourses.map((course) => (
-            <Link key={course.id} to={course.url} className="course-card">
-              <div className="course-card__top">
-                <div>
-                  <p className="course-card__eyebrow">In progress</p>
-                  <h3>{course.name}</h3>
-                  <p className="meta">{courseMeta[course.id]?.next ?? 'Next deadline soon'}</p>
+          {activeCourses.length === 0 ? (
+            <p className="empty">No active courses.</p>
+          ) : (
+            activeCourses.map((course) => (
+              <Link key={course.id} to={course.url} className="course-card">
+                <div className="course-card__top">
+                  <div>
+                    <p className="course-card__eyebrow">In progress</p>
+                    <h3>{course.name}</h3>
+                  </div>
+                  <span className={`status status--${course.status}`}>
+                    {course.status.replace('_', ' ')}
+                  </span>
                 </div>
-                <span className={`status status--${course.status}`}>{course.status.replace('_', ' ')}</span>
-              </div>
-              <div className="course-card__progress">
-                <div className="course-card__progress-bar">
-                  <span style={{ width: `${courseMeta[course.id]?.progress ?? 0}%` }} />
+                <div className="course-card__progress">
+                  <div className="course-card__progress-bar">
+                    <span style={{ width: '0%' }} />
+                  </div>
+                  <span className="course-card__badge">—</span>
                 </div>
-                <span className="course-card__badge">{courseMeta[course.id]?.progress ?? 0}%</span>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))
+          )}
         </div>
-      </div>
-
-      <div className="panel">
-        <h2>Register for a new course</h2>
-        <form className="form-inline" onSubmit={(event) => event.preventDefault()}>
-          <input className="input" placeholder="Course title..." />
-          <button className="btn btn-ghost" type="submit">
-            Go
-          </button>
-        </form>
       </div>
     </section>
   )

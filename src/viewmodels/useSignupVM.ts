@@ -1,29 +1,38 @@
 import { useState } from 'react'
+import { signUp } from '../api/endpoints'
 
 export interface SignupFormState {
-  inviteCode: string
+  username: string
   email: string
-  telegram: string
-  group: string
+  password: string
 }
 
 export function useSignupVM() {
   const [form, setForm] = useState<SignupFormState>({
-    inviteCode: '',
+    username: '',
     email: '',
-    telegram: '',
-    group: '',
+    password: '',
   })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const updateField = <K extends keyof SignupFormState>(key: K, value: SignupFormState[K]) => {
-    setForm((current) => ({
-      ...current,
-      [key]: value,
-    }))
+    setForm((current) => ({ ...current, [key]: value }))
   }
 
-  return {
-    form,
-    updateField,
+  const submit = async (): Promise<boolean> => {
+    setError(null)
+    setLoading(true)
+    try {
+      await signUp({ username: form.username, email: form.email, password: form.password })
+      return true
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Registration failed')
+      return false
+    } finally {
+      setLoading(false)
+    }
   }
+
+  return { form, updateField, submit, loading, error }
 }
