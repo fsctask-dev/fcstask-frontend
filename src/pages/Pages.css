@@ -589,3 +589,63 @@
     justify-content: center;
   }
 }
+
+.oauth-buttons {
+  display: grid;
+  gap: 10px;
+}
+.btn-oauth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-1);
+}
+.btn-oauth:hover {
+  border-color: var(--border-2);
+  background: var(--bg);
+}
+.btn-oauth:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-oauth--gitlab {
+  background: #fc6d26;
+  color: #fff;
+  border-color: #fc6d26;
+}
+.btn-oauth--gitlab:hover {
+  background: #e85a1b;
+}
+.btn-oauth--telegram {
+  background: #229ed9;
+  color: #fff;
+  border-color: #229ed9;
+}
+.btn-oauth--telegram:hover {
+  background: #1c86b8;
+}
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-3);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
