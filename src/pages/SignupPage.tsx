@@ -24,7 +24,7 @@ export function SignupPage() {
       </div>
       <div className="oauth-buttons">
         <button
-          className="btn btn-oauth btn-oauth--gitlab"
+          className="oauth-btn"
           type="button"
           onClick={() => handleOAuthLogin('gitlab')}
           disabled={loading}
@@ -35,7 +35,7 @@ export function SignupPage() {
           Sign up with GitLab
         </button>
         <button
-          className="btn btn-oauth btn-oauth--telegram"
+          className="oauth-btn"
           type="button"
           onClick={() => handleOAuthLogin('telegram')}
           disabled={loading}
@@ -46,9 +46,7 @@ export function SignupPage() {
           Sign up with Telegram
         </button>
       </div>
-      <div className="auth-divider">
-        <span>or</span>
-      </div>
+      <div className="auth-divider">or</div>
       <form className="auth-form" onSubmit={handleSubmit}>
         {error && <p className="error-msg">{error}</p>}
         <label>
