@@ -12,7 +12,7 @@ export function MainLayout() {
   const { user, reload } = useAuth()
   const { theme, toggle: toggleTheme } = useTheme()
   const isCourseRoute = location.pathname.startsWith('/course/')
-  const isSignup = location.pathname.startsWith('/signup')
+  const isSignup = location.pathname.startsWith('/signup')  || location.pathname.startsWith('/signin')
   const courseBase = isCourseRoute ? location.pathname.split('/').slice(0, 3).join('/') : ''
 
   const [courses, setCourses] = useState<Course[]>([])
