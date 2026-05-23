@@ -52,7 +52,7 @@ export function MainLayout() {
         <nav className="topbar__nav">
           {isCourseRoute ? (
             <>
-              <NavLink to={courseBase} className="nav-link">
+              <NavLink to={courseBase} className="nav-link" end>
                 Assignments
               </NavLink>
               <a className="nav-link" href="https://gitlab.com" target="_blank" rel="noreferrer">

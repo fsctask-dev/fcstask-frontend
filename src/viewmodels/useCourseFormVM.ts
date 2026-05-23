@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { createCourse, updateCourse } from '../api/endpoints'
+import { useState, useCallback } from 'react'
+import { createCourse, updateCourse, getCourse } from '../api/endpoints'
 
 export interface CourseFormState {
   name: string
@@ -23,6 +23,7 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [originalForm, setOriginalForm] = useState<CourseFormState | null>(null)
   const [courseId, setCourseId] = useState<string | null>(null)
   const updateField = <K extends keyof CourseFormState>(key: K, value: CourseFormState[K]) => {
     setForm((current) => ({
@@ -45,6 +46,7 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
           description: form.description,
         })
         setCourseId(result.id)
+        setOriginalForm({ ...form })
       } else {
         if (!courseId) {
           setError('Course ID not set')
@@ -52,27 +54,28 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
         }
         await updateCourse(courseId, {
           name: form.name,
+          slug: form.slug,
           status: form.status,
           startDate: form.startDate,
           endDate: form.endDate,
           repoTemplate: form.repoTemplate,
           description: form.description,
         })
+        setOriginalForm({ ...form })
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to save course')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to save course')
     } finally {
       setLoading(false)
     }
   }
-  const loadCourse = async (id: string) => {
-    const { getCourse } = await import('../api/endpoints')
+  const loadCourse = useCallback(async (id: string) => {
     setLoading(true)
     setError(null)
     try {
       const course = await getCourse(id)
       setCourseId(id)
-      setForm({
+      const courseData: CourseFormState = {
         name: course.name,
         slug: course.slug || '',
         status: (course.status as CourseFormState['status']) || 'created',
@@ -80,11 +83,20 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
         endDate: course.end_date ? course.end_date.split('T')[0] : '',
         repoTemplate: course.repo_template || '',
         description: course.description || '',
-      })
-    } catch (err: any) {
-      setError(err.message || 'Failed to load course')
+      }
+      setForm(courseData)
+      setOriginalForm(courseData)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to load course')
     } finally {
       setLoading(false)
+    }
+  }, [])
+  
+  const hasChanges = JSON.stringify(form) !== JSON.stringify(originalForm)
+  const resetForm = () => {
+    if (originalForm) {
+      setForm({ ...originalForm })
     }
   }
 
@@ -96,5 +108,7 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
     error,
     loadCourse,
     setForm,
+    hasChanges,
+    resetForm,
   }
 }

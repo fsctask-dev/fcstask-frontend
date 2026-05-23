@@ -93,6 +93,7 @@ export async function updateCourse(
   courseId: string,
   req: Partial<{
     name: string
+    slug: string
     status: string
     startDate: string
     endDate: string

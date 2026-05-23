@@ -7,11 +7,15 @@ interface CourseFormProps {
   submitLabel: string
   onSubmit: () => void | Promise<void>
   loading?: boolean
+  onCancel?: () => void
 }
 
-export function CourseForm({ form, onChange, submitLabel, onSubmit, loading }: CourseFormProps) {
+export function CourseForm({ form, onChange, submitLabel, onSubmit, loading, onCancel }: CourseFormProps) {
   return (
-    <form className="course-form" onSubmit={onSubmit}>
+    <form className="course-form" onSubmit={(event) => {
+      event.preventDefault()
+      onSubmit()
+    }}>
       <label>
         Course name
         <input
@@ -80,7 +84,7 @@ export function CourseForm({ form, onChange, submitLabel, onSubmit, loading }: C
         <button className="btn" type="submit" disabled={loading}>
           {loading ? 'Saving...' : submitLabel}
         </button>
-        <button className="btn btn-ghost" type="button">
+        <button className="btn btn-ghost" type="button" onClick={onCancel}>
           Cancel
         </button>
       </div>
