@@ -5,11 +5,18 @@ interface CourseFormProps {
   form: CourseFormState
   onChange: <K extends keyof CourseFormState>(key: K, value: CourseFormState[K]) => void
   submitLabel: string
+  onSubmit: () => void | Promise<void>
+  loading?: boolean
+  onCancel?: () => void
+  isEdit?: boolean
 }
 
-export function CourseForm({ form, onChange, submitLabel }: CourseFormProps) {
+export function CourseForm({ form, onChange, submitLabel, onSubmit, loading, onCancel, isEdit}: CourseFormProps) {
   return (
-    <form className="course-form" onSubmit={(event) => event.preventDefault()}>
+    <form className="course-form" onSubmit={(event) => {
+      event.preventDefault()
+      onSubmit()
+    }}>
       <label>
         Course name
         <input
@@ -21,9 +28,10 @@ export function CourseForm({ form, onChange, submitLabel }: CourseFormProps) {
       <label>
         Slug
         <input
-          className="input"
+          className={`input ${isEdit ? 'input--readonly' : ''}`}
           value={form.slug}
           onChange={(event) => onChange('slug', event.target.value)}
+          readOnly={isEdit}
         />
       </label>
       <label>
@@ -75,10 +83,10 @@ export function CourseForm({ form, onChange, submitLabel }: CourseFormProps) {
         />
       </label>
       <div className="course-form__actions">
-        <button className="btn" type="submit">
-          {submitLabel}
+        <button className="btn" type="submit" disabled={loading}>
+          {loading ? 'Saving...' : submitLabel}
         </button>
-        <button className="btn btn-ghost" type="button">
+        <button className="btn btn-ghost" type="button" onClick={onCancel}>
           Cancel
         </button>
       </div>

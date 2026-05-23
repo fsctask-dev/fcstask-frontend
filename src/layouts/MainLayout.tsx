@@ -14,8 +14,8 @@ export function MainLayout() {
   const isCourseRoute = location.pathname.startsWith('/course/')
   const isSignup = location.pathname.startsWith('/signup')  || location.pathname.startsWith('/signin')
   const courseBase = isCourseRoute ? location.pathname.split('/').slice(0, 3).join('/') : ''
-
   const [courses, setCourses] = useState<Course[]>([])
+  const currentCourse = courses.find((c) => c.url === courseBase)
 
   const handleSignOut = async () => {
     await signOut().catch(() => {})
@@ -52,7 +52,7 @@ export function MainLayout() {
         <nav className="topbar__nav">
           {isCourseRoute ? (
             <>
-              <NavLink to={courseBase} className="nav-link">
+              <NavLink to={courseBase} className="nav-link" end>
                 Assignments
               </NavLink>
               <a className="nav-link" href="https://gitlab.com" target="_blank" rel="noreferrer">
@@ -93,7 +93,7 @@ export function MainLayout() {
               <div className="course-switch__control">
                 <select
                   className="course-switch__select"
-                  defaultValue={courses[0]?.url}
+                  value={currentCourse?.url || courses[0]?.url || ''}
                   onChange={(event) => navigate(event.target.value)}
                 >
                   {courses.map((course) => (
