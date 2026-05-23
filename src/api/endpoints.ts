@@ -59,10 +59,11 @@ export async function getMe(): Promise<MeResponse> {
 export interface CourseDTO {
   id: string
   name: string
+  slug: string
   status: string
-  startDate: string
-  endDate: string
-  repoTemplate: string
+  start_date: string
+  end_date: string
+  repo_template: string
   description: string
   url: string
 }

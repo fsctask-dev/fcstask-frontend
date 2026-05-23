@@ -1,9 +1,18 @@
+import { useEffect } from 'react'
+import { useParams } from 'react-router'
 import { CourseForm } from '../components/CourseForm'
 import { useCourseFormVM } from '../viewmodels/useCourseFormVM'
 import './Pages.css'
 
 export function EditCoursePage() {
-  const { form, updateField } = useCourseFormVM('edit')
+  const { courseId } = useParams<{ courseId: string }>()
+  const { form, updateField, submit, loading, loadCourse } = useCourseFormVM('edit')
+
+  useEffect(() => {
+    if (courseId) {
+      loadCourse(courseId)
+    }
+  }, [courseId])
 
   return (
     <section className="page-grid">
@@ -16,7 +25,7 @@ export function EditCoursePage() {
       </div>
 
       <div className="panel">
-        <CourseForm form={form} onChange={updateField} submitLabel="Save changes" />
+        <CourseForm form={form} onChange={updateField} submitLabel="Save changes" onSubmit={submit} loading={loading} />
       </div>
     </section>
   )

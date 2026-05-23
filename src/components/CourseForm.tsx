@@ -5,11 +5,13 @@ interface CourseFormProps {
   form: CourseFormState
   onChange: <K extends keyof CourseFormState>(key: K, value: CourseFormState[K]) => void
   submitLabel: string
+  onSubmit: () => void | Promise<void>
+  loading?: boolean
 }
 
-export function CourseForm({ form, onChange, submitLabel }: CourseFormProps) {
+export function CourseForm({ form, onChange, submitLabel, onSubmit, loading }: CourseFormProps) {
   return (
-    <form className="course-form" onSubmit={(event) => event.preventDefault()}>
+    <form className="course-form" onSubmit={onSubmit}>
       <label>
         Course name
         <input
@@ -75,8 +77,8 @@ export function CourseForm({ form, onChange, submitLabel }: CourseFormProps) {
         />
       </label>
       <div className="course-form__actions">
-        <button className="btn" type="submit">
-          {submitLabel}
+        <button className="btn" type="submit" disabled={loading}>
+          {loading ? 'Saving...' : submitLabel}
         </button>
         <button className="btn btn-ghost" type="button">
           Cancel

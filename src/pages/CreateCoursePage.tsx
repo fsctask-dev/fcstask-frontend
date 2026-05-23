@@ -3,7 +3,7 @@ import { useCourseFormVM } from '../viewmodels/useCourseFormVM'
 import './Pages.css'
 
 export function CreateCoursePage() {
-  const { form, updateField } = useCourseFormVM('create')
+  const { form, updateField, submit, loading } = useCourseFormVM('create')
 
   return (
     <section className="page-grid">
@@ -16,7 +16,7 @@ export function CreateCoursePage() {
       </div>
 
       <div className="panel">
-        <CourseForm form={form} onChange={updateField} submitLabel="Create course" />
+        <CourseForm form={form} onChange={updateField} submitLabel="Create course" onSubmit={submit} loading={loading} />
       </div>
     </section>
   )
