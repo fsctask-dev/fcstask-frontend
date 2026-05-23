@@ -8,9 +8,10 @@ interface CourseFormProps {
   onSubmit: () => void | Promise<void>
   loading?: boolean
   onCancel?: () => void
+  isEdit?: boolean
 }
 
-export function CourseForm({ form, onChange, submitLabel, onSubmit, loading, onCancel }: CourseFormProps) {
+export function CourseForm({ form, onChange, submitLabel, onSubmit, loading, onCancel, isEdit}: CourseFormProps) {
   return (
     <form className="course-form" onSubmit={(event) => {
       event.preventDefault()
@@ -27,9 +28,10 @@ export function CourseForm({ form, onChange, submitLabel, onSubmit, loading, onC
       <label>
         Slug
         <input
-          className="input"
+          className={`input ${isEdit ? 'input--readonly' : ''}`}
           value={form.slug}
           onChange={(event) => onChange('slug', event.target.value)}
+          readOnly={isEdit}
         />
       </label>
       <label>

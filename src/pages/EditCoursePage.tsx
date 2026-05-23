@@ -33,7 +33,7 @@ export function EditCoursePage() {
       </div>
 
       <div className="panel">
-        <CourseForm form={form} onChange={updateField} submitLabel="Save changes" onSubmit={submit} loading={loading} onCancel={handleCancel} />
+        <CourseForm form={form} onChange={updateField} submitLabel="Save changes" onSubmit={submit} loading={loading} onCancel={handleCancel} isEdit />
       </div>
     </section>
   )

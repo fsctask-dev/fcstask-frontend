@@ -54,7 +54,6 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
         }
         await updateCourse(courseId, {
           name: form.name,
-          slug: form.slug,
           status: form.status,
           startDate: form.startDate,
           endDate: form.endDate,
