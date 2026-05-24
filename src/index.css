@@ -99,3 +99,33 @@ button, input, select, textarea {
   background: var(--border-2);
   border-radius: 999px;
 }
+
+/* ─── Password strength ─── */
+
+.password-strength {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.password-strength__bar {
+  flex: 1;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--border);
+  transition: background 0.2s;
+}
+
+.password-strength__bar--weak { background: var(--red); }
+.password-strength__bar--medium { background: var(--orange); }
+.password-strength__bar--strong { background: var(--green); }
+
+.password-strength__label {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+.password-strength__label--weak { color: var(--red); }
+.password-strength__label--medium { color: var(--orange); }
+.password-strength__label--strong { color: var(--green); }
