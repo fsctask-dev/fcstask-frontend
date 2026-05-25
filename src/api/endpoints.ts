@@ -109,6 +109,47 @@ export async function getCourseBoard(courseId: string): Promise<TaskBoardSummary
   return api.get<TaskBoardSummary>(`/api/courses/${courseId}/board`)
 }
 
+// Namespaces
+
+export interface NamespaceDTO {
+  id: string
+  name: string
+  slug: string
+  description?: string
+  gitlabGroupId?: string
+  coursesCount: number
+  usersCount: number
+}
+
+export interface NamespaceUserDTO {
+  id: string
+  username: string
+  role: string
+}
+
+export interface NamespaceCourseDTO {
+  id: string
+  name: string
+  status: string
+  url: string
+}
+
+export async function getNamespaces(): Promise<NamespaceDTO[]> {
+  return api.get<NamespaceDTO[]>('/api/namespaces')
+}
+
+export async function getNamespace(id: string): Promise<NamespaceDTO> {
+  return api.get<NamespaceDTO>(`/api/namespaces/${id}`)
+}
+
+export async function getNamespaceUsers(id: string): Promise<NamespaceUserDTO[]> {
+  return api.get<NamespaceUserDTO[]>(`/api/namespaces/${id}/users`)
+}
+
+export async function getNamespaceCourses(id: string): Promise<NamespaceCourseDTO[]> {
+  return api.get<NamespaceCourseDTO[]>(`/api/namespaces/${id}/courses`)
+}
+
 // Helpers
 
 export function courseDTOToModel(dto: CourseDTO): Course {
