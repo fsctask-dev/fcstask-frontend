@@ -2,8 +2,10 @@ import { useNavigate } from 'react-router-dom'
 import { useSignupVM } from '../viewmodels/useSignupVM'
 import './Pages.css'
 
+const strengthBars = { weak: 1, medium: 2, strong: 3 }
+
 export function SignupPage() {
-  const { form, updateField, submit, loading, error } = useSignupVM()
+  const { form, updateField, submit, loading, error, passwordStrength } = useSignupVM()
   const navigate = useNavigate()
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -77,6 +79,23 @@ export function SignupPage() {
             onChange={(e) => updateField('password', e.target.value)}
             required
           />
+          {form.password && (
+            <div className="password-strength">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`password-strength__bar ${i < strengthBars[passwordStrength.level] ? `password-strength__bar--${passwordStrength.level}` : ''}`}
+                />
+              ))}
+            </div>
+          )}
+          {form.password && (
+            <p className={`password-strength__label password-strength__label--${passwordStrength.level}`}>
+              {passwordStrength.level === 'weak' && 'Weak — try adding numbers and symbols'}
+              {passwordStrength.level === 'medium' && 'Medium — add uppercase and special chars'}
+              {passwordStrength.level === 'strong' && 'Strong password'}
+            </p>
+          )}
         </label>
         <div className="auth-actions">
           <button className="btn btn-ghost" type="button" onClick={() => navigate('/')}>
