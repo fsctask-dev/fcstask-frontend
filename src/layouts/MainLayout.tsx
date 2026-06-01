@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../hooks/useTheme'
-import { getCourses, courseDTOToModel, signOut } from '../api/endpoints'
+import { getCourses, getCourse, createHomework, courseDTOToModel, signOut } from '../api/endpoints'
+import { ApiError } from '../api/client'
 import type { Course } from '../models/types'
 import './MainLayout.css'
 
@@ -15,7 +16,9 @@ export function MainLayout() {
   const isSignup = location.pathname.startsWith('/signup')  || location.pathname.startsWith('/signin')
   const courseBase = isCourseRoute ? location.pathname.split('/').slice(0, 3).join('/') : ''
   const [courses, setCourses] = useState<Course[]>([])
+  const [isCourseAdmin, setIsCourseAdmin] = useState(false)
   const currentCourse = courses.find((c) => c.url === courseBase)
+  const courseSlug = isCourseRoute ? location.pathname.split('/')[2] : ''
 
   const handleSignOut = async () => {
     await signOut().catch(() => {})
@@ -30,6 +33,17 @@ export function MainLayout() {
         .catch(() => {})
     }
   }, [isCourseRoute])
+
+  useEffect(() => {
+    if (!isCourseRoute || !courseSlug) { setIsCourseAdmin(false); return }
+    getCourse(courseSlug)
+      .then((c) => createHomework(c.id, {}).then(() => setIsCourseAdmin(true)).catch((e) => {
+        // 400 = has permission but invalid data → admin
+        // 403 = no permission → student
+        setIsCourseAdmin(e instanceof ApiError && e.status === 400)
+      }))
+      .catch(() => setIsCourseAdmin(false))
+  }, [isCourseRoute, courseSlug])
 
   if (isSignup) {
     return (
@@ -52,6 +66,8 @@ export function MainLayout() {
         <nav className="topbar__nav">
           {isCourseRoute ? (
             <>
+              {(() => { const isAdmin = isCourseAdmin; return (
+              <>
               <NavLink to={courseBase} className="nav-link" end>
                 Assignments
               </NavLink>
@@ -64,12 +80,20 @@ export function MainLayout() {
               <NavLink to={`${courseBase}/database`} className="nav-link">
                 All Scores
               </NavLink>
-              <NavLink to={`${courseBase}/edit`} className="nav-link">
-                Edit Course
-              </NavLink>
+              {isAdmin && (
+                <NavLink to={`${courseBase}/edit`} className="nav-link">
+                  Edit Course
+                </NavLink>
+              )}
+              {isAdmin && (
+                <NavLink to={`${courseBase}/admin`} className="nav-link">
+                  Homework
+                </NavLink>
+              )}
               <NavLink to="/admin/namespaces" className="nav-link">
                 Namespaces
               </NavLink>
+              </> ); })()}
             </>
           ) : (
             <>

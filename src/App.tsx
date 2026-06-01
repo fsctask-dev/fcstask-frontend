@@ -13,6 +13,8 @@ import { NamespacesPage } from './pages/NamespacesPage'
 import { NamespacePanelPage } from './pages/NamespacePanelPage'
 import { InstanceAdminPage } from './pages/InstanceAdminPage'
 import { NotReadyPage } from './pages/NotReadyPage'
+import { AdminHomeworkPage } from './pages/AdminHomeworkPage'
+import { AdminHomeworkDetailPage } from './pages/AdminHomeworkDetailPage'
 import './App.css'
 
 function App() {
@@ -26,6 +28,8 @@ function App() {
             <Route path="/course/:courseId" element={<TasksPage />} />
             <Route path="/course/:courseId/database" element={<DatabasePage />} />
             <Route path="/course/:courseId/edit" element={<EditCoursePage />} />
+            <Route path="/course/:courseId/admin" element={<AdminHomeworkPage />} />
+            <Route path="/course/:courseId/admin/homework/:hwId" element={<AdminHomeworkDetailPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/signup/finish" element={<SignupFinishPage />} />
             <Route path="/signin" element={<SigninPage />} />
