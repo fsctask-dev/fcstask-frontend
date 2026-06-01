@@ -4,6 +4,7 @@ import { createCourse, updateCourse, getCourse } from '../api/endpoints'
 export interface CourseFormState {
   name: string
   slug: string
+  type: 'public' | 'private'
   status: 'created' | 'hidden' | 'in_progress' | 'finished'
   startDate: string
   endDate: string
@@ -15,6 +16,7 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
   const [form, setForm] = useState<CourseFormState>({
     name: '',
     slug: '',
+    type: 'private',
     status: 'created',
     startDate: '',
     endDate: '',
@@ -39,6 +41,7 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
         const result = await createCourse({
           name: form.name,
           slug: form.slug,
+          type: form.type,
           status: form.status,
           startDate: form.startDate,
           endDate: form.endDate,
@@ -54,6 +57,7 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
         }
         await updateCourse(courseId, {
           name: form.name,
+          type: form.type,
           status: form.status,
           startDate: form.startDate,
           endDate: form.endDate,
@@ -77,6 +81,7 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
       const courseData: CourseFormState = {
         name: course.name,
         slug: course.slug || '',
+        type: (course.type as 'public' | 'private') || 'private',
         status: (course.status as CourseFormState['status']) || 'created',
         startDate: course.start_date ? course.start_date.split('T')[0] : '',
         endDate: course.end_date ? course.end_date.split('T')[0] : '',

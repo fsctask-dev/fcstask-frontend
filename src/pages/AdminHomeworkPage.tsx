@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAdminHomeworkVM } from '../viewmodels/useAdminHomeworkVM'
 import './Pages.css'
 
@@ -9,7 +9,6 @@ export function AdminHomeworkPage() {
   const [newStartDate, setNewStartDate] = useState('')
   const [newEndDate, setNewEndDate] = useState('')
   const [showCreate, setShowCreate] = useState(false)
-  const navigate = useNavigate()
 
   const handleCreate = async () => {
     if (!newTitle.trim()) return
@@ -31,9 +30,6 @@ export function AdminHomeworkPage() {
           <p className="subtle">Manage homework assignments for this course.</p>
         </div>
         <div className="header-actions">
-          <button className="btn btn-ghost" type="button" onClick={() => navigate(`/course/${courseId}`)}>
-            ← Back to course
-          </button>
           <button className="btn" type="button" onClick={() => setShowCreate((v) => !v)}>
             + New homework
           </button>

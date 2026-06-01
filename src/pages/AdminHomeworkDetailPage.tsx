@@ -4,7 +4,7 @@ import { useAdminHomeworkDetailVM } from '../viewmodels/useAdminHomeworkDetailVM
 import './Pages.css'
 
 export function AdminHomeworkDetailPage() {
-  const { courseId, hwId, homework, tasks, loading, saving, error, save, togglePublishHw, addTask, togglePublishTask, removeTask } =
+  const { courseId, homework, tasks, loading, saving, error, save, togglePublishHw, addTask, togglePublishTask, removeTask } =
     useAdminHomeworkDetailVM()
   const [editTitle, setEditTitle] = useState('')
   const [editDesc, setEditDesc] = useState('')

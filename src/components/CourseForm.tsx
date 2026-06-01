@@ -35,6 +35,17 @@ export function CourseForm({ form, onChange, submitLabel, onSubmit, loading, onC
         />
       </label>
       <label>
+        Type
+        <select
+          className="input"
+          value={form.type}
+          onChange={(event) => onChange('type', event.target.value as 'public' | 'private')}
+        >
+          <option value="private">Private</option>
+          <option value="public">Public</option>
+        </select>
+      </label>
+      <label>
         Status
         <select
           className="input"

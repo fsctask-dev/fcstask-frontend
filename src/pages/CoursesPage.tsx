@@ -1,17 +1,20 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useCoursesVM } from '../viewmodels/useCoursesVM'
 import { createCourse } from '../api/endpoints'
 import { ApiError } from '../api/client'
+import { useAuth } from '../context/AuthContext'
 import './Pages.css'
 
 export function CoursesPage() {
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const { activeCourses, finishedCourses, showFinished, toggleFinished, loading, error,
-    joining, joinError, joinCourseUrl, joinBySlug } = useCoursesVM()
+    joining, joinError, joinCourseUrl, joinBySlug } = useCoursesVM(user !== null)
   const [canCreateCourse, setCanCreateCourse] = useState(false)
 
   useEffect(() => {
-    createCourse({ name: '', slug: '', status: '', startDate: '', endDate: '', repoTemplate: '', description: '' })
+    createCourse({ name: '', slug: '', type: '', status: '', startDate: '', endDate: '', repoTemplate: '', description: '' })
       .catch((e) => {
         setCanCreateCourse(e instanceof ApiError && e.status === 400)
       })
@@ -41,7 +44,7 @@ export function CoursesPage() {
           <button className="btn btn-ghost" onClick={toggleFinished} type="button">
             {showFinished ? 'Hide completed' : 'Show completed'}
           </button>
-          <button className="btn btn-ghost" onClick={() => setShowJoinForm((v) => !v)} type="button">
+          <button className="btn btn-ghost" onClick={() => user ? setShowJoinForm((v) => !v) : navigate('/signin')} type="button">
             Join course
           </button>
           {canCreateCourse && (
@@ -125,23 +128,17 @@ export function CoursesPage() {
           {!error && activeCourses.length === 0 ? (
             <p className="empty">No active courses.</p>
           ) : (
-            activeCourses.map((course) => (
-              <Link key={course.id} to={course.url} className="course-card">
-                <div className="course-card__top">
-                  <div>
-                    <p className="course-card__eyebrow">In progress</p>
-                    <h3>{course.name}</h3>
+              activeCourses.map((course) => (
+                <Link key={course.id} to={course.url} className="course-card">
+                  <div className="course-card__top">
+                    <div>
+                      <p className="course-card__eyebrow">In progress</p>
+                      <h3>{course.name}</h3>
+                    </div>
+                    <span className={`status status--${course.status}`}>
+                      {course.status.replace('_', ' ')}
+                    </span>
                   </div>
-                  <span className={`status status--${course.status}`}>
-                    {course.status.replace('_', ' ')}
-                  </span>
-                </div>
-                <div className="course-card__progress">
-                  <div className="course-card__progress-bar">
-                    <span style={{ width: '0%' }} />
-                  </div>
-                  <span className="course-card__badge">—</span>
-                </div>
               </Link>
             ))
           )}

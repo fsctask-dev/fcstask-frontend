@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../hooks/useTheme'
-import { getCourses, getCourse, createHomework, courseDTOToModel, signOut } from '../api/endpoints'
-import { ApiError } from '../api/client'
+import { getCourses, getCourse, courseDTOToModel, signOut } from '../api/endpoints'
 import type { Course } from '../models/types'
 import './MainLayout.css'
 
@@ -37,11 +36,7 @@ export function MainLayout() {
   useEffect(() => {
     if (!isCourseRoute || !courseSlug) { setIsCourseAdmin(false); return }
     getCourse(courseSlug)
-      .then((c) => createHomework(c.id, {}).then(() => setIsCourseAdmin(true)).catch((e) => {
-        // 400 = has permission but invalid data → admin
-        // 403 = no permission → student
-        setIsCourseAdmin(e instanceof ApiError && e.status === 400)
-      }))
+      .then(() => setIsCourseAdmin(true))
       .catch(() => setIsCourseAdmin(false))
   }, [isCourseRoute, courseSlug])
 
