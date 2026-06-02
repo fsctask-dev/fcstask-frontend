@@ -6,6 +6,22 @@ import { getCourses, courseDTOToModel, signOut } from '../api/endpoints'
 import type { Course } from '../models/types'
 import './MainLayout.css'
 
+const getRouteTitle = (pathname: string): string => {
+  if (pathname === '/') return 'Courses'
+  if (pathname === '/course/create') return 'Create Course'
+  if (pathname === '/signin') return 'Sign In'
+  if (pathname === '/signup') return 'Sign Up'
+  if (pathname === '/signup/finish') return 'Sign Up Complete'
+  if (pathname.startsWith('/course/') && pathname.endsWith('/database')) return 'All Scores'
+  if (pathname.startsWith('/course/') && pathname.endsWith('/edit')) return 'Edit Course'
+  if (pathname.startsWith('/course/')) return 'Assignments'
+  if (pathname === '/admin/namespaces') return 'Namespaces'
+  if (pathname.startsWith('/admin/namespaces/')) return 'Namespace Panel'
+  if (pathname === '/admin/instance') return 'Instance Admin'
+  if (pathname === '/not-ready') return 'Not Ready'
+  return 'FCS Task'
+}
+
 export function MainLayout() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -30,6 +46,11 @@ export function MainLayout() {
         .catch(() => {})
     }
   }, [isCourseRoute])
+
+  useEffect(() => {
+    const title = getRouteTitle(location.pathname)
+    document.title = title !== 'FCS Task' ? `${title} | FCS Task` : 'FCS Task'
+  }, [location.pathname])
 
   if (isSignup) {
     return (
