@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../hooks/useTheme'
-import { getCourses, courseDTOToModel, signOut } from '../api/endpoints'
+import { getPublicCourses, courseDTOToModel, signOut } from '../api/endpoints'
 import type { Course } from '../models/types'
 import './MainLayout.css'
 
@@ -25,8 +25,8 @@ export function MainLayout() {
 
   useEffect(() => {
     if (isCourseRoute) {
-      getCourses()
-        .then((dtos) => setCourses(dtos.map(courseDTOToModel)))
+      getPublicCourses()
+        .then((dtos) => setCourses((dtos ?? []).map(courseDTOToModel)))
         .catch(() => {})
     }
   }, [isCourseRoute])
@@ -73,9 +73,14 @@ export function MainLayout() {
             </>
           ) : (
             <>
-              <NavLink to="/" className="nav-link">
+              <NavLink to="/" className="nav-link" end>
                 Courses
               </NavLink>
+              {user && (
+                <NavLink to="/my-courses" className="nav-link">
+                  My Courses
+                </NavLink>
+              )}
               <NavLink to="/admin/namespaces" className="nav-link">
                 Namespaces
               </NavLink>

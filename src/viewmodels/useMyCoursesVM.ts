@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { getCourses, courseDTOToModel } from '../api/endpoints'
 import type { Course } from '../models/types'
 
-export interface CoursesVM {
+export interface MyCoursesVM {
   activeCourses: Course[]
   finishedCourses: Course[]
   showFinished: boolean
@@ -11,7 +11,7 @@ export interface CoursesVM {
   error: string | null
 }
 
-export function useCoursesVM(): CoursesVM {
+export function useMyCoursesVM(): MyCoursesVM {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -19,7 +19,7 @@ export function useCoursesVM(): CoursesVM {
 
   useEffect(() => {
     getCourses()
-      .then((dtos) => setCourses(dtos.map(courseDTOToModel)))
+      .then((dtos) => setCourses((dtos ?? []).map(courseDTOToModel)))
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
   }, [])

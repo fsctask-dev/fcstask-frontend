@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
-import { useCoursesVM } from '../viewmodels/useCoursesVM'
+import { useMyCoursesVM } from '../viewmodels/useMyCoursesVM'
 import './Pages.css'
 
-export function CoursesPage() {
+export function MyCoursesPage() {
   const { activeCourses, finishedCourses, showFinished, toggleFinished, loading, error } =
-    useCoursesVM()
+    useMyCoursesVM()
 
   if (loading) return <div className="page-grid"><p className="subtle">Loading courses…</p></div>
   if (error) return <div className="page-grid"><p className="error-msg">Error: {error}</p></div>
@@ -14,7 +14,7 @@ export function CoursesPage() {
       <div className="page-header">
         <div>
           <p className="eyebrow">Overview</p>
-          <h1>Courses</h1>
+          <h1>My Courses</h1>
           <p className="subtle">Keep track of your programs, tasks, and results.</p>
         </div>
         <div className="header-actions">
@@ -70,12 +70,6 @@ export function CoursesPage() {
                   <span className={`status status--${course.status}`}>
                     {course.status.replace('_', ' ')}
                   </span>
-                </div>
-                <div className="course-card__progress">
-                  <div className="course-card__progress-bar">
-                    <span style={{ width: '0%' }} />
-                  </div>
-                  <span className="course-card__badge">—</span>
                 </div>
               </Link>
             ))
