@@ -1,7 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { MainLayout } from './layouts/MainLayout'
-import { CoursesPage } from './pages/CoursesPage'
+import { PublicCoursesPage } from './pages/PublicCoursesPage'
+import { MyCoursesPage } from './pages/MyCoursesPage'
 import { TasksPage } from './pages/TasksPage'
 import { DatabasePage } from './pages/DatabasePage'
 import { CreateCoursePage } from './pages/CreateCoursePage'
@@ -21,7 +22,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route element={<MainLayout />}>
-            <Route path="/" element={<CoursesPage />} />
+            <Route path="/" element={<PublicCoursesPage />} />
+            <Route path="/my-courses" element={<MyCoursesPage />} />
             <Route path="/course/create" element={<CreateCoursePage />} />
             <Route path="/course/:courseId" element={<TasksPage />} />
             <Route path="/course/:courseId/database" element={<DatabasePage />} />

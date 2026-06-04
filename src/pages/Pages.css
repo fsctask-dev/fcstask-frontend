@@ -1,5 +1,14 @@
 /* ─── Layout ─── */
 
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--text-3);
+  font-size: 1.3rem;
+}
+
 .page-grid {
   display: grid;
   gap: 24px;
@@ -251,38 +260,27 @@
   margin-bottom: 3px;
 }
 
-.course-card__progress {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.course-card__progress-bar {
-  flex: 1;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--border);
-  overflow: hidden;
-}
-
-.course-card__progress-bar span {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-  border-radius: 999px;
-}
-
-.course-card__badge {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--accent);
-  flex-shrink: 0;
-}
-
 .course-card__footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.search-wrap {
+  position: relative;
+}
+
+.search-wrap .input {
+  padding-right: 2rem;
+}
+
+.search-icon {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--text-secondary);
 }
 
 /* ─── Form inline ─── */

@@ -61,6 +61,7 @@ export interface CourseDTO {
   name: string
   slug: string
   status: string
+  type: string
   start_date: string
   end_date: string
   repo_template: string
@@ -71,6 +72,10 @@ export interface CourseDTO {
 export async function getCourses(status?: string): Promise<CourseDTO[]> {
   const query = status ? `?status=${status}` : ''
   return api.get<CourseDTO[]>(`/api/courses${query}`)
+}
+
+export async function getPublicCourses(): Promise<CourseDTO[]> {
+  return api.get<CourseDTO[]>('/api/courses/public')
 }
 
 export async function getCourse(courseId: string): Promise<CourseDTO> {
@@ -116,6 +121,7 @@ export function courseDTOToModel(dto: CourseDTO): Course {
     id: dto.id,
     name: dto.name,
     status: dto.status as Course['status'],
+    type: dto.type as 'public' | 'private',
     url: dto.url,
     isFinished: dto.status === 'finished',
   }
