@@ -61,6 +61,7 @@ export interface CourseDTO {
   name: string
   slug: string
   status: string
+  type: string
   start_date: string
   end_date: string
   repo_template: string
@@ -73,6 +74,10 @@ export async function getCourses(status?: string): Promise<CourseDTO[]> {
   return api.get<CourseDTO[]>(`/api/courses${query}`)
 }
 
+export async function getPublicCourses(): Promise<CourseDTO[]> {
+  return api.get<CourseDTO[]>('/api/courses/public')
+}
+
 export async function getCourse(courseId: string): Promise<CourseDTO> {
   return api.get<CourseDTO>(`/api/courses/${courseId}`)
 }
@@ -80,6 +85,7 @@ export async function getCourse(courseId: string): Promise<CourseDTO> {
 export async function createCourse(req: {
   name: string
   slug: string
+  type: string
   status: string
   startDate: string
   endDate: string
@@ -94,6 +100,7 @@ export async function updateCourse(
   req: Partial<{
     name: string
     status: string
+    type: string
     startDate: string
     endDate: string
     repoTemplate: string
@@ -109,6 +116,99 @@ export async function getCourseBoard(courseId: string): Promise<TaskBoardSummary
   return api.get<TaskBoardSummary>(`/api/courses/${courseId}/board`)
 }
 
+// Scores / Leaderboard
+
+export interface LeaderboardEntry {
+  username: string
+  totalScore: number
+  rank: number
+}
+
+export async function getCourseScores(courseId: string): Promise<LeaderboardEntry[]> {
+  return api.get<LeaderboardEntry[]>(`/api/courses/${courseId}/scores`)
+}
+
+// Join course
+
+export async function joinCourse(courseId: string, code?: string): Promise<void> {
+  return api.post(`/api/courses/${courseId}/join`, { code: code ?? '' })
+}
+
+// Admin: homework
+
+export interface HomeworkDTO {
+  hw_id: string
+  course_id: string
+  title?: string
+  description?: string
+  position: number
+  is_public: boolean
+  start_date?: string
+  end_date?: string
+}
+
+export async function listHomework(courseId: string): Promise<HomeworkDTO[]> {
+  return api.get<HomeworkDTO[]>(`/admin/courses/${courseId}/homework`)
+}
+
+export async function getHomework(courseId: string, hwId: string): Promise<HomeworkDTO> {
+  return api.get<HomeworkDTO>(`/admin/courses/${courseId}/homework/${hwId}`)
+}
+
+export async function createHomework(courseId: string, req: Partial<HomeworkDTO>): Promise<HomeworkDTO> {
+  return api.post<HomeworkDTO>(`/admin/courses/${courseId}/homework`, req)
+}
+
+export async function updateHomework(courseId: string, hwId: string, req: Partial<HomeworkDTO>): Promise<HomeworkDTO> {
+  return api.patch<HomeworkDTO>(`/admin/courses/${courseId}/homework/${hwId}`, req)
+}
+
+export async function deleteHomework(courseId: string, hwId: string): Promise<void> {
+  return api.delete(`/admin/courses/${courseId}/homework/${hwId}`)
+}
+
+export async function publishHomework(courseId: string, hwId: string, isPublic: boolean): Promise<HomeworkDTO> {
+  return api.patch<HomeworkDTO>(`/admin/courses/${courseId}/homework/${hwId}/publish`, { is_public: isPublic })
+}
+
+// Admin: tasks
+
+export interface TaskDTO {
+  task_id: string
+  hw_id: string
+  name?: string
+  position: number
+  score: number
+  is_bonus: boolean
+  is_public: boolean
+}
+
+export async function listTasks(courseId: string, hwId: string): Promise<TaskDTO[]> {
+  return api.get<TaskDTO[]>(`/admin/courses/${courseId}/homework/${hwId}/tasks`)
+}
+
+export async function createTask(courseId: string, hwId: string, req: {
+  score?: number
+  repo_url?: string
+  task_url?: string
+}): Promise<TaskDTO> {
+  return api.post<TaskDTO>(`/admin/courses/${courseId}/homework/${hwId}/tasks`, req)
+}
+
+export async function publishTask(courseId: string, hwId: string, taskId: string, isPublic: boolean): Promise<TaskDTO> {
+  return api.patch<TaskDTO>(`/admin/courses/${courseId}/homework/${hwId}/tasks/${taskId}/publish`, { is_public: isPublic })
+}
+
+export async function deleteTask(courseId: string, hwId: string, taskId: string): Promise<void> {
+  return api.delete(`/admin/courses/${courseId}/homework/${hwId}/tasks/${taskId}`)
+}
+
+// Admin: deadline
+
+export async function getDeadlineByHwId(hwId: string): Promise<string> {
+  return api.get<string>(`/admin/homework/${hwId}/deadline`)
+}
+
 // Helpers
 
 export function courseDTOToModel(dto: CourseDTO): Course {
@@ -116,8 +216,9 @@ export function courseDTOToModel(dto: CourseDTO): Course {
     id: dto.id,
     name: dto.name,
     status: dto.status as Course['status'],
+    type: dto.type as 'public' | 'private',
     url: dto.url,
-    isFinished: dto.status === 'finished',
+  isFinished: dto.status === 'finished',
   }
 }
 

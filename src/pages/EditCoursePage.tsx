@@ -6,7 +6,7 @@ import './Pages.css'
 
 export function EditCoursePage() {
   const { courseId } = useParams<{ courseId: string }>()
-  const { form, updateField, submit, loading, loadCourse, hasChanges, resetForm } = useCourseFormVM('edit')
+  const { form, updateField, submit, loading, error, loadCourse, hasChanges, resetForm } = useCourseFormVM('edit')
   const navigate = useNavigate()
   const handleCancel = () => {
     if (hasChanges) {
@@ -22,6 +22,8 @@ export function EditCoursePage() {
     }
   }, [courseId, loadCourse])
 
+  if (loading) return <div className="page-grid"><p className="subtle">Loading course…</p></div>
+
   return (
     <section className="page-grid">
       <div className="page-header">
@@ -31,6 +33,8 @@ export function EditCoursePage() {
           <p className="subtle">Tweak schedules, descriptions, and publishing settings.</p>
         </div>
       </div>
+
+      {error && <p className="error-msg">{error}</p>}
 
       <div className="panel">
         <CourseForm form={form} onChange={updateField} submitLabel="Save changes" onSubmit={submit} loading={loading} onCancel={handleCancel} isEdit />

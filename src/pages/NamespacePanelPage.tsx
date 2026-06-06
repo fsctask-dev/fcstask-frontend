@@ -39,7 +39,7 @@ export function NamespacePanelPage() {
             <div key={user.id} className="table__row">
               <span>{user.id}</span>
               <span>{user.username}</span>
-              <span>{user.rmsId}</span>
+              <span>—</span>
               <span>{user.role.replace('_', ' ')}</span>
               <select className="input input--small" defaultValue={user.role}>
                 <option value="namespace_admin">Namespace admin</option>
@@ -71,8 +71,8 @@ export function NamespacePanelPage() {
               <span>{course.id}</span>
               <span>{course.name}</span>
               <span>{course.status}</span>
-              <span>{course.gitlabGroup}</span>
-              <span>{course.owners.join(', ')}</span>
+              <span>—</span>
+              <span>—</span>
             </Link>
           ))}
         </div>

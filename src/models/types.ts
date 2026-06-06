@@ -8,6 +8,7 @@ export interface Course {
   id: string
   name: string
   status: CourseStatus
+  type: 'public' | 'private'
   url: string
   isFinished?: boolean
 }
