@@ -5,6 +5,7 @@ export interface CourseFormState {
   name: string
   slug: string
   status: 'created' | 'hidden' | 'in_progress' | 'finished'
+  type: 'public' | 'private'
   startDate: string
   endDate: string
   repoTemplate: string
@@ -16,6 +17,7 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
     name: '',
     slug: '',
     status: 'created',
+    type: 'private',
     startDate: '',
     endDate: '',
     repoTemplate: '',
@@ -40,6 +42,7 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
           name: form.name,
           slug: form.slug,
           status: form.status,
+          type: form.type,
           startDate: form.startDate,
           endDate: form.endDate,
           repoTemplate: form.repoTemplate,
@@ -55,6 +58,7 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
         await updateCourse(courseId, {
           name: form.name,
           status: form.status,
+          type: form.type,
           startDate: form.startDate,
           endDate: form.endDate,
           repoTemplate: form.repoTemplate,
@@ -78,6 +82,7 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
         name: course.name,
         slug: course.slug || '',
         status: (course.status as CourseFormState['status']) || 'created',
+        type: (course.type as 'public' | 'private') || 'private',
         startDate: course.start_date ? course.start_date.split('T')[0] : '',
         endDate: course.end_date ? course.end_date.split('T')[0] : '',
         repoTemplate: course.repo_template || '',

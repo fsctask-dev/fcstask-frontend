@@ -86,6 +86,7 @@ export async function createCourse(req: {
   name: string
   slug: string
   status: string
+  type: string
   startDate: string
   endDate: string
   repoTemplate: string
@@ -99,6 +100,7 @@ export async function updateCourse(
   req: Partial<{
     name: string
     status: string
+    type: string
     startDate: string
     endDate: string
     repoTemplate: string
