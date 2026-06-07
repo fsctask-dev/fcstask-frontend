@@ -1,0 +1,14 @@
+replicaCount: 2
+
+ingress:
+  hosts:
+    - host: fcs-task-dev.turbomuza.ru
+      paths:
+        - path: /
+          pathType: Prefix
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
