@@ -1,7 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { MainLayout } from './layouts/MainLayout'
-import { CoursesPage } from './pages/CoursesPage'
+import { PublicCoursesPage } from './pages/PublicCoursesPage'
+import { MyCoursesPage } from './pages/MyCoursesPage'
 import { TasksPage } from './pages/TasksPage'
 import { DatabasePage } from './pages/DatabasePage'
 import { CreateCoursePage } from './pages/CreateCoursePage'
@@ -9,8 +10,6 @@ import { EditCoursePage } from './pages/EditCoursePage'
 import { SignupPage } from './pages/SignupPage'
 import { SignupFinishPage } from './pages/SignupFinishPage'
 import { SigninPage } from './pages/SigninPage'
-import { NamespacesPage } from './pages/NamespacesPage'
-import { NamespacePanelPage } from './pages/NamespacePanelPage'
 import { InstanceAdminPage } from './pages/InstanceAdminPage'
 import { NotReadyPage } from './pages/NotReadyPage'
 import { AdminHomeworkPage } from './pages/AdminHomeworkPage'
@@ -23,7 +22,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route element={<MainLayout />}>
-            <Route path="/" element={<CoursesPage />} />
+            <Route path="/" element={<PublicCoursesPage />} />
+            <Route path="/my-courses" element={<MyCoursesPage />} />
             <Route path="/course/create" element={<CreateCoursePage />} />
             <Route path="/course/:courseId" element={<TasksPage />} />
             <Route path="/course/:courseId/database" element={<DatabasePage />} />
@@ -33,8 +33,6 @@ function App() {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/signup/finish" element={<SignupFinishPage />} />
             <Route path="/signin" element={<SigninPage />} />
-            <Route path="/admin/namespaces" element={<NamespacesPage />} />
-            <Route path="/admin/namespaces/:namespaceId" element={<NamespacePanelPage />} />
             <Route path="/admin/instance" element={<InstanceAdminPage />} />
             <Route path="/not-ready" element={<NotReadyPage />} />
           </Route>

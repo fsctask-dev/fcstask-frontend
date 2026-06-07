@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../hooks/useTheme'
-import { getCourses, getCourse, courseDTOToModel, signOut } from '../api/endpoints'
+import { getPublicCourses, getCourse, getStats, courseDTOToModel, signOut, checkPermissions } from '../api/endpoints'
 import type { Course } from '../models/types'
 import './MainLayout.css'
 
@@ -15,7 +15,8 @@ export function MainLayout() {
   const isSignup = location.pathname.startsWith('/signup')  || location.pathname.startsWith('/signin')
   const courseBase = isCourseRoute ? location.pathname.split('/').slice(0, 3).join('/') : ''
   const [courses, setCourses] = useState<Course[]>([])
-  const [isCourseAdmin, setIsCourseAdmin] = useState(false)
+  const [perms, setPerms] = useState<Record<string, boolean> | null>(null)
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const currentCourse = courses.find((c) => c.url === courseBase)
   const courseSlug = isCourseRoute ? location.pathname.split('/')[2] : ''
 
@@ -27,18 +28,26 @@ export function MainLayout() {
 
   useEffect(() => {
     if (isCourseRoute) {
-      getCourses()
-        .then((dtos) => setCourses(dtos.map(courseDTOToModel)))
+      getPublicCourses()
+        .then((dtos) => setCourses((dtos ?? []).map(courseDTOToModel)))
         .catch(() => {})
     }
   }, [isCourseRoute])
 
   useEffect(() => {
-    if (!isCourseRoute || !courseSlug) { setIsCourseAdmin(false); return }
+    if (!isCourseRoute || !courseSlug) { setPerms(null); return }
     getCourse(courseSlug)
-      .then(() => setIsCourseAdmin(true))
-      .catch(() => setIsCourseAdmin(false))
+      .then(course => checkPermissions(course.id, ['course.update', 'homework.create']))
+      .then(setPerms)
+      .catch(() => setPerms(null))
   }, [isCourseRoute, courseSlug])
+
+  useEffect(() => {
+    if (!user) { setIsSuperAdmin(false); return }
+    getStats()
+      .then(() => setIsSuperAdmin(true))
+      .catch(() => setIsSuperAdmin(false))
+  }, [user])
 
   if (isSignup) {
     return (
@@ -61,8 +70,6 @@ export function MainLayout() {
         <nav className="topbar__nav">
           {isCourseRoute ? (
             <>
-              {(() => { const isAdmin = isCourseAdmin; return (
-              <>
               <NavLink to={courseBase} className="nav-link" end>
                 Assignments
               </NavLink>
@@ -75,40 +82,39 @@ export function MainLayout() {
               <NavLink to={`${courseBase}/database`} className="nav-link">
                 All Scores
               </NavLink>
-              {isAdmin && (
+              {perms?.['course.update'] && (
                 <NavLink to={`${courseBase}/edit`} className="nav-link">
                   Edit Course
                 </NavLink>
               )}
-              {isAdmin && (
+              {perms?.['homework.create'] && (
                 <NavLink to={`${courseBase}/admin`} className="nav-link">
                   Homework
                 </NavLink>
               )}
-              <NavLink to="/admin/namespaces" className="nav-link">
-                Namespaces
-              </NavLink>
-              </> ); })()}
             </>
           ) : (
             <>
-              <NavLink to="/" className="nav-link">
-                Courses
+              <NavLink to="/" className="nav-link" end>
+               Courses
               </NavLink>
-              <NavLink to="/admin/namespaces" className="nav-link">
-                Namespaces
-              </NavLink>
-              <NavLink to="/admin/instance" className="nav-link">
-                Instance Panel
-              </NavLink>
-            </>
+              {user && (
+                <NavLink to="/my-courses" className="nav-link">
+                  My Courses
+                </NavLink>
+              )}
+              {isSuperAdmin && (
+                <NavLink to="/admin/instance" className="nav-link">
+                  Instance Panel
+                </NavLink> 
+              )}
+            </> 
           )}
         </nav>
 
         <div className="topbar__actions">
           {isCourseRoute && courses.length > 0 && (
             <div className="course-switch">
-              <span className="course-switch__label">Course</span>
               <div className="course-switch__control">
                 <select
                   className="course-switch__select"

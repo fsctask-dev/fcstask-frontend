@@ -33,7 +33,7 @@ export const courses: Course[] = [
   {
     id: 'rust',
     name: 'Rust Core',
-    status: 'created',
+    status: 'in_progress',
     type: 'private',
     url: '/course/rust',
   },
@@ -54,7 +54,7 @@ export const courses: Course[] = [
   {
     id: 'advanced-python',
     name: 'Advanced Python',
-    status: 'created',
+    status: 'in_progress',
     type: 'private',
     url: '/course/advanced-python',
   },
@@ -222,7 +222,7 @@ export const namespaceCourses: NamespaceCourse[] = [
   {
     id: 'c-102',
     name: 'Rust Core',
-    status: 'created',
+    status: 'in_progress',
     gitlabGroup: 'rust-core',
     owners: ['alex'],
     url: '/course/rust',

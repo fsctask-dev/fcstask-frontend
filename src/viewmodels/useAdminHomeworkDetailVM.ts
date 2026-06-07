@@ -3,14 +3,17 @@ import { useParams } from 'react-router-dom'
 import {
   getCourse, getHomework, updateHomework, publishHomework,
   listTasks, createTask, publishTask, deleteTask,
+  getDeadlineByHwId, setDeadline, deleteDeadline,
 } from '../api/endpoints'
-import type { HomeworkDTO, TaskDTO } from '../api/endpoints'
+import type { HomeworkDTO, TaskDTO, DeadlineDTO } from '../api/endpoints'
 
 export function useAdminHomeworkDetailVM() {
   const { courseId: courseSlug, hwId } = useParams<{ courseId: string; hwId: string }>()
   const [courseId, setCourseId] = useState<string | null>(null)
   const [homework, setHomework] = useState<HomeworkDTO | null>(null)
   const [tasks, setTasks] = useState<TaskDTO[]>([])
+  const [deadline, setDeadlineState] = useState<DeadlineDTO | null>(null)
+  const [deadlineDate, setDeadlineDate] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -25,10 +28,15 @@ export function useAdminHomeworkDetailVM() {
   const fetchAll = useCallback(() => {
     if (!courseId || !hwId) return
     setLoading(true)
-    Promise.all([getHomework(courseId, hwId), listTasks(courseId, hwId)])
-      .then(([hw, taskList]) => {
+    Promise.all([
+      getHomework(courseId, hwId),
+      listTasks(courseId, hwId),
+      getDeadlineByHwId(hwId).catch(() => null),
+    ])
+      .then(([hw, taskList, dl]) => {
         setHomework(hw)
         setTasks(taskList)
+        setDeadlineDate(dl as string | null)
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
@@ -69,10 +77,10 @@ export function useAdminHomeworkDetailVM() {
     }
   }, [courseId, hwId, fetchAll])
 
-  const addTask = useCallback(async (score: number, taskUrl?: string) => {
+  const addTask = useCallback(async (title: string, score: number, taskUrl?: string) => {
     if (!courseId || !hwId) return
     try {
-      await createTask(courseId, hwId, { score, task_url: taskUrl || undefined })
+      await createTask(courseId, hwId, { title, score, task_url: taskUrl || undefined })
       fetchAll()
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to create task')
@@ -89,5 +97,33 @@ export function useAdminHomeworkDetailVM() {
     }
   }, [courseId, hwId, fetchAll])
 
-  return { courseId, hwId, homework, tasks, loading, saving, error, save, togglePublishHw, addTask, togglePublishTask, removeTask }
+  const saveDeadline = useCallback(async (title: string, dueDate: string) => {
+    if (!courseId || !hwId) return
+    try {
+      const rfc3339 = new Date(dueDate).toISOString()
+      const dl = await setDeadline(courseId, hwId, { title, due_date: rfc3339 })
+      setDeadlineState(dl)
+      setDeadlineDate(dueDate)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Failed to set deadline')
+    }
+  }, [courseId, hwId])
+
+  const removeDeadline = useCallback(async () => {
+    if (!deadline) return
+    try {
+      await deleteDeadline(deadline.id)
+      setDeadlineState(null)
+      setDeadlineDate(null)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Failed to delete deadline')
+    }
+  }, [deadline])
+
+  return {
+    courseId, hwId, homework, tasks, deadline, deadlineDate,
+    loading, saving, error, setError,
+    save, togglePublishHw, addTask, togglePublishTask, removeTask,
+    saveDeadline, removeDeadline,
+  }
 }

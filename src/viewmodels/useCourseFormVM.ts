@@ -5,19 +5,19 @@ export interface CourseFormState {
   name: string
   slug: string
   type: 'public' | 'private'
-  status: 'created' | 'hidden' | 'in_progress' | 'finished'
+  status: 'hidden' | 'in_progress' | 'finished'
   startDate: string
   endDate: string
   repoTemplate: string
   description: string
 }
 
-export function useCourseFormVM(mode: 'create' | 'edit') {
+export function useCourseFormVM(mode: 'create' | 'edit', onSuccess?: () => void) {
   const [form, setForm] = useState<CourseFormState>({
     name: '',
     slug: '',
     type: 'private',
-    status: 'created',
+    status: 'hidden',
     startDate: '',
     endDate: '',
     repoTemplate: '',
@@ -50,6 +50,7 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
         })
         setCourseId(result.id)
         setOriginalForm({ ...form })
+        onSuccess?.()
       } else {
         if (!courseId) {
           setError('Course ID not set')
@@ -82,7 +83,7 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
         name: course.name,
         slug: course.slug || '',
         type: (course.type as 'public' | 'private') || 'private',
-        status: (course.status as CourseFormState['status']) || 'created',
+        status: (course.status as CourseFormState['status']) || 'hidden',
         startDate: course.start_date ? course.start_date.split('T')[0] : '',
         endDate: course.end_date ? course.end_date.split('T')[0] : '',
         repoTemplate: course.repo_template || '',
