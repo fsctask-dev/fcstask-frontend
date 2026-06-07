@@ -26,7 +26,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
-    throw new ApiError(res.status, body?.error?.message ?? res.statusText)
+    throw new ApiError(res.status, body?.message ?? body?.error?.message ?? res.statusText)
   }
 
   if (res.status === 204) return undefined as T

@@ -176,11 +176,13 @@ export async function publishHomework(courseId: string, hwId: string, isPublic: 
 export interface TaskDTO {
   task_id: string
   hw_id: string
-  name?: string
+  title: string
   position: number
   score: number
   is_bonus: boolean
   is_public: boolean
+  repo_url?: string
+  task_url?: string
 }
 
 export async function listTasks(courseId: string, hwId: string): Promise<TaskDTO[]> {
@@ -188,11 +190,24 @@ export async function listTasks(courseId: string, hwId: string): Promise<TaskDTO
 }
 
 export async function createTask(courseId: string, hwId: string, req: {
-  score?: number
+  title: string
+  score: number
   repo_url?: string
   task_url?: string
 }): Promise<TaskDTO> {
   return api.post<TaskDTO>(`/admin/courses/${courseId}/homework/${hwId}/tasks`, req)
+}
+
+export async function updateTask(courseId: string, hwId: string, taskId: string, req: {
+  score?: number
+  repo_url?: string
+  task_url?: string
+}): Promise<TaskDTO> {
+  return api.patch<TaskDTO>(`/admin/courses/${courseId}/homework/${hwId}/tasks/${taskId}`, req)
+}
+
+export async function setTaskScore(courseId: string, hwId: string, taskId: string, score: number): Promise<TaskDTO> {
+  return api.patch<TaskDTO>(`/admin/courses/${courseId}/homework/${hwId}/tasks/${taskId}/score`, { score })
 }
 
 export async function publishTask(courseId: string, hwId: string, taskId: string, isPublic: boolean): Promise<TaskDTO> {
@@ -205,8 +220,102 @@ export async function deleteTask(courseId: string, hwId: string, taskId: string)
 
 // Admin: deadline
 
+export interface DeadlineDTO {
+  id: string
+  title: string
+  description?: string
+  course_id: string
+  homework_id?: string
+  due_date: string
+  assigned_by?: string
+}
+
 export async function getDeadlineByHwId(hwId: string): Promise<string> {
   return api.get<string>(`/admin/homework/${hwId}/deadline`)
+}
+
+export async function setDeadline(courseId: string, hwId: string, req: {
+  title: string
+  description?: string
+  due_date: string
+}): Promise<DeadlineDTO> {
+  return api.put<DeadlineDTO>(`/admin/courses/${courseId}/homework/${hwId}/deadline`, {
+    course_id: courseId,
+    ...req,
+  })
+}
+
+export async function updateDeadline(deadlineId: string, req: {
+  title?: string
+  description?: string
+  due_date?: string
+}): Promise<DeadlineDTO> {
+  return api.patch<DeadlineDTO>(`/admin/deadlines/${deadlineId}`, req)
+}
+
+export async function deleteDeadline(deadlineId: string): Promise<void> {
+  return api.delete(`/admin/deadlines/${deadlineId}`)
+}
+
+// Admin: roles & participants
+
+export interface UserRoleDTO {
+  user_id: string
+  course_id: string
+  role_id: string
+}
+
+export async function listCourseRoles(courseId: string): Promise<UserRoleDTO[]> {
+  return api.get<UserRoleDTO[]>(`/admin/courses/${courseId}/roles`)
+}
+
+export async function assignCourseAdmin(courseId: string, userId: string): Promise<UserRoleDTO> {
+  return api.post<UserRoleDTO>(`/admin/courses/${courseId}/roles`, { user_id: userId })
+}
+
+export async function revokeCourseAdmin(courseId: string, userId: string): Promise<void> {
+  return api.delete(`/admin/courses/${courseId}/roles`)
+}
+
+export async function removeCourseParticipant(courseId: string, userId: string): Promise<void> {
+  return api.delete(`/admin/courses/${courseId}/participants`)
+}
+
+export async function listRolePermissions(courseId: string, roleId: string): Promise<string[]> {
+  return api.get<string[]>(`/admin/courses/${courseId}/roles/${roleId}/permissions`)
+}
+
+// Admin: super admins
+
+export async function createSuperAdmin(userId: string): Promise<UserRoleDTO> {
+  return api.post<UserRoleDTO>('/admin/super-admins', { user_id: userId })
+}
+
+// Invite code
+
+export async function regenerateInviteCode(courseId: string): Promise<string> {
+  const res = await api.post<{ invite_code: string }>(`/api/courses/${courseId}/invite`, {})
+  return res.invite_code
+}
+
+// Health
+
+export async function getHealth(): Promise<{ status: string }> {
+  return api.get<{ status: string }>('/health')
+}
+
+// Platform stats
+
+export interface PlatformStats {
+  totalCourses: number
+  publicCourses: number
+  privateCourses: number
+  totalUsers: number
+  healthStatus?: 'ok' | 'degraded'
+}
+
+export async function getStats(): Promise<PlatformStats> {
+  return api.get<PlatformStats>('/api/stats')
 }
 
 // Helpers

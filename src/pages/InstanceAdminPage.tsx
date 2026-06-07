@@ -2,7 +2,7 @@ import { useInstanceAdminVM } from '../viewmodels/useInstanceAdminVM'
 import './Pages.css'
 
 export function InstanceAdminPage() {
-  const { summary } = useInstanceAdminVM()
+  const { summary, loading, error } = useInstanceAdminVM()
 
   return (
     <section className="page-grid">
@@ -14,24 +14,33 @@ export function InstanceAdminPage() {
         </div>
       </div>
 
-      <div className="stats-grid">
-        <div className="stat-card">
-          <p>Total courses</p>
-          <h2>{summary.totalCourses}</h2>
+      {loading && <p className="subtle">Loading stats…</p>}
+      {error && <p className="error-msg">{error}</p>}
+
+      {summary && (
+        <div className="stats-grid">
+          <div className="stat-card">
+            <p>Total courses</p>
+            <h2>{summary.totalCourses}</h2>
+          </div>
+          <div className="stat-card">
+            <p>Public courses</p>
+            <h2>{summary.publicCourses}</h2>
+          </div>
+          <div className="stat-card">
+            <p>Private courses</p>
+            <h2>{summary.privateCourses}</h2>
+          </div>
+          <div className="stat-card">
+            <p>Total users</p>
+            <h2>{summary.totalUsers}</h2>
+          </div>
+          <div className="stat-card">
+            <p>Health</p>
+            <h2>{summary.healthStatus ?? '—'}</h2>
+          </div>
         </div>
-        <div className="stat-card">
-          <p>Total users</p>
-          <h2>{summary.totalUsers}</h2>
-        </div>
-        <div className="stat-card">
-          <p>Namespaces</p>
-          <h2>{summary.totalNamespaces}</h2>
-        </div>
-        <div className="stat-card">
-          <p>Health</p>
-          <h2>{summary.healthStatus}</h2>
-        </div>
-      </div>
+      )}
 
       <div className="panel">
         <h2>Quick actions</h2>

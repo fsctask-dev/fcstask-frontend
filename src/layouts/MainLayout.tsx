@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../hooks/useTheme'
-import { getCourses, getCourse, courseDTOToModel, signOut } from '../api/endpoints'
+import { getPublicCourses, getCourse, getStats, courseDTOToModel, signOut } from '../api/endpoints'
 import type { Course } from '../models/types'
 import './MainLayout.css'
 
@@ -16,6 +16,7 @@ export function MainLayout() {
   const courseBase = isCourseRoute ? location.pathname.split('/').slice(0, 3).join('/') : ''
   const [courses, setCourses] = useState<Course[]>([])
   const [isCourseAdmin, setIsCourseAdmin] = useState(false)
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const currentCourse = courses.find((c) => c.url === courseBase)
   const courseSlug = isCourseRoute ? location.pathname.split('/')[2] : ''
 
@@ -27,8 +28,8 @@ export function MainLayout() {
 
   useEffect(() => {
     if (isCourseRoute) {
-      getCourses()
-        .then((dtos) => setCourses(dtos.map(courseDTOToModel)))
+      getPublicCourses()
+        .then((dtos) => setCourses((dtos ?? []).map(courseDTOToModel)))
         .catch(() => {})
     }
   }, [isCourseRoute])
@@ -39,6 +40,13 @@ export function MainLayout() {
       .then(() => setIsCourseAdmin(true))
       .catch(() => setIsCourseAdmin(false))
   }, [isCourseRoute, courseSlug])
+
+  useEffect(() => {
+    if (!user) { setIsSuperAdmin(false); return }
+    getStats()
+      .then(() => setIsSuperAdmin(true))
+      .catch(() => setIsSuperAdmin(false))
+  }, [user])
 
   if (isSignup) {
     return (
@@ -92,15 +100,19 @@ export function MainLayout() {
             </>
           ) : (
             <>
-              <NavLink to="/" className="nav-link">
+              <NavLink to="/" className="nav-link" end>
                 Courses
               </NavLink>
-              <NavLink to="/admin/namespaces" className="nav-link">
-                Namespaces
-              </NavLink>
-              <NavLink to="/admin/instance" className="nav-link">
-                Instance Panel
-              </NavLink>
+              {user && (
+                <NavLink to="/my-courses" className="nav-link">
+                  My Courses
+                </NavLink>
+              )}
+              {isSuperAdmin && (
+                <NavLink to="/admin/instance" className="nav-link">
+                  Instance Panel
+                </NavLink>
+              )}
             </>
           )}
         </nav>
