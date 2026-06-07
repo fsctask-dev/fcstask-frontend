@@ -52,7 +52,6 @@ export function CourseForm({ form, onChange, submitLabel, onSubmit, loading, onC
           value={form.status}
           onChange={(event) => onChange('status', event.target.value as CourseFormState['status'])}
         >
-          <option value="created">Created</option>
           <option value="hidden">Hidden</option>
           <option value="in_progress">In progress</option>
           <option value="finished">Finished</option>

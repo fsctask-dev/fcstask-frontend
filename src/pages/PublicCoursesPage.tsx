@@ -1,11 +1,37 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { usePublicCoursesVM } from '../viewmodels/usePublicCoursesVM'
+import { useAuth } from '../context/AuthContext'
+import { joinCourse } from '../api/endpoints'
 import './Pages.css'
 
 export function PublicCoursesPage() {
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const { courses, loading, error } = usePublicCoursesVM()
+  const [joining, setJoining] = useState<string | null>(null)
+  const [joinError, setJoinError] = useState<string | null>(null)
+
+  const handleJoin = async (e: React.MouseEvent, courseId: string, courseUrl: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!user) { navigate('/signin'); return }
+    setJoining(courseId)
+    setJoinError(null)
+    try {
+      await joinCourse(courseId)
+      navigate(courseUrl)
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message.includes('already a participant')) {
+        navigate(courseUrl)
+        return
+      }
+      setJoinError(err instanceof Error ? err.message : 'Failed to join')
+    } finally {
+      setJoining(null)
+    }
+  }
 
   const filtered = useMemo(
     () => courses.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())),
@@ -45,18 +71,31 @@ export function PublicCoursesPage() {
         </div>
       ) : (
         <div className="panel">
+          {joinError && <p className="error-msg">{joinError}</p>}
           <div className="course-grid">
             {filtered.map((course) => (
-              <Link key={course.id} to={course.url} className="course-card">
-                <div className="course-card__top">
-                  <div>
-                    <h3>{course.name}</h3>
+              <div key={course.id} className="course-card">
+                <Link to={course.url} className="course-card__body">
+                  <div className="course-card__top">
+                    <div>
+                      <h3>{course.name}</h3>
+                    </div>
+                    <span className={`status status--${course.status}`}>
+                      {course.status.replace('_', ' ')}
+                    </span>
                   </div>
-                  <span className={`status status--${course.status}`}>
-                    {course.status.replace('_', ' ')}
-                  </span>
+                </Link>
+                <div className="course-card__footer">
+                  <button
+                    className="btn"
+                    onClick={(e) => handleJoin(e, course.id, course.url)}
+                    disabled={joining === course.id}
+                    type="button"
+                  >
+                    {joining === course.id ? 'Joining…' : 'Join'}
+                  </button>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>

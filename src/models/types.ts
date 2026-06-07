@@ -1,4 +1,4 @@
-export type CourseStatus = 'created' | 'hidden' | 'in_progress' | 'all_tasks_issued' | 'doreshka' | 'finished'
+export type CourseStatus = 'hidden' | 'in_progress' | 'finished'
 
 export type TaskStatus = 'unsolved' | 'solved' | 'solved_partially' | 'over_solved'
 

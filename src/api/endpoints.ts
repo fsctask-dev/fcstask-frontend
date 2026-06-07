@@ -92,7 +92,7 @@ export async function createCourse(req: {
   repoTemplate: string
   description: string
 }): Promise<CourseDTO> {
-  return api.post<CourseDTO>('/api/courses', req)
+  return api.post<CourseDTO>('/admin/courses/create', req)
 }
 
 export async function updateCourse(
@@ -107,21 +107,33 @@ export async function updateCourse(
     description: string
   }>,
 ): Promise<CourseDTO> {
-  return api.put<CourseDTO>(`/api/courses/${courseId}`, req)
+  return api.put<CourseDTO>(`/admin/courses/${courseId}/update`, req)
 }
 
 // Task board
-
 export async function getCourseBoard(courseId: string): Promise<TaskBoardSummary> {
   return api.get<TaskBoardSummary>(`/api/courses/${courseId}/board`)
 }
 
 // Scores / Leaderboard
+export interface TaskScore {
+  task_id: string
+  title: string
+  score: number
+}
+
+export interface HomeworkScore {
+  homework_id: string
+  homework_title: string
+  total_score: number
+  tasks: TaskScore[]
+}
 
 export interface LeaderboardEntry {
   username: string
   totalScore: number
   rank: number
+  homeworks: HomeworkScore[]
 }
 
 export async function getCourseScores(courseId: string): Promise<LeaderboardEntry[]> {
@@ -129,13 +141,15 @@ export async function getCourseScores(courseId: string): Promise<LeaderboardEntr
 }
 
 // Join course
-
 export async function joinCourse(courseId: string, code?: string): Promise<void> {
   return api.post(`/api/courses/${courseId}/join`, { code: code ?? '' })
 }
 
-// Admin: homework
+export async function checkPermissions(courseId: string, permissions: string[]): Promise<Record<string, boolean>> {
+  return api.post(`/api/courses/${courseId}/check-permissions`, { permissions })
+}
 
+// Admin: homework
 export interface HomeworkDTO {
   hw_id: string
   course_id: string

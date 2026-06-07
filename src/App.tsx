@@ -10,8 +10,6 @@ import { EditCoursePage } from './pages/EditCoursePage'
 import { SignupPage } from './pages/SignupPage'
 import { SignupFinishPage } from './pages/SignupFinishPage'
 import { SigninPage } from './pages/SigninPage'
-import { NamespacesPage } from './pages/NamespacesPage'
-import { NamespacePanelPage } from './pages/NamespacePanelPage'
 import { InstanceAdminPage } from './pages/InstanceAdminPage'
 import { NotReadyPage } from './pages/NotReadyPage'
 import { AdminHomeworkPage } from './pages/AdminHomeworkPage'
@@ -35,8 +33,6 @@ function App() {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/signup/finish" element={<SignupFinishPage />} />
             <Route path="/signin" element={<SigninPage />} />
-            <Route path="/admin/namespaces" element={<NamespacesPage />} />
-            <Route path="/admin/namespaces/:namespaceId" element={<NamespacePanelPage />} />
             <Route path="/admin/instance" element={<InstanceAdminPage />} />
             <Route path="/not-ready" element={<NotReadyPage />} />
           </Route>

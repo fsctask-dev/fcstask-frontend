@@ -12,7 +12,6 @@ export function TasksPage() {
     <section className="page-grid">
       <div className="page-header">
         <div>
-          <p className="eyebrow">Course</p>
           <h1>{board.courseName}</h1>
           <p className="subtle">Progress overview and upcoming deadlines.</p>
         </div>
