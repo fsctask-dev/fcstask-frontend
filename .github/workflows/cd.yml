@@ -67,17 +67,14 @@ jobs:
 
       - name: Deploy to test
         env:
-          DB_HOST: postgres-dev-postgresql-primary.postgres-dev.svc.cluster.local
-          DB_REPLICA_HOST: postgres-dev-postgresql-read.postgres-dev.svc.cluster.local
-          DB_PORT: '5432'
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          IMAGE_REPOSITORY: ${{ secrets.DOCKER_REGISTRY_USER }}/${{ env.IMAGE_NAME }}
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.short_sha }}
         run: |
           helm upgrade --install fcsapp-frontend ./helm/fcsapp-frontend \
             --namespace ${{ env.K8S_NAMESPACE_TEST }} \
-            --set image.repository=${{ secrets.DOCKER_REGISTRY_USER }}/${{ env.IMAGE_NAME }} \
-            --set image.tag=${{ needs.build-and-push.outputs.short_sha }} \
+            -f ./helm/fcsapp-frontend/values-test.yaml \
+            --set image.repository="$IMAGE_REPOSITORY" \
+            --set image.tag="$IMAGE_TAG" \
             --wait
 
   deploy-prod-to-k8s:
@@ -85,7 +82,7 @@ jobs:
       - build-and-push
       - deploy-test-to-k8s
 
-    if: needs.build-and-push.outputs.is_release_branch == 'true'
+    if: startsWith(github.ref, 'refs/heads/release/')
 
     runs-on: self-hosted
     environment: prod
@@ -115,7 +112,9 @@ jobs:
         run: |
           helm upgrade --install fcsapp-frontend ./helm/fcsapp-frontend \
             --namespace ${{ env.K8S_NAMESPACE_PROD }} \
+            -f ./helm/fcsapp-frontend/values-prod.yaml \
             --set image.repository="$IMAGE_REPOSITORY" \
             --set image.tag="$IMAGE_TAG" \
             --wait \
-            --timeout 5m
+            --timeout 5m \
+            --atomic
