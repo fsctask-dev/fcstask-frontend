@@ -21,7 +21,7 @@ export interface CourseSummary {
 export interface UserProfile {
   username: string
   initials: string
-  role: 'student' | 'namespace_admin' | 'program_manager' | 'instance_admin'
+  role: 'student' | 'program_manager' | 'instance_admin'
 }
 
 export interface Task {
@@ -62,35 +62,8 @@ export interface TaskBoardSummary {
   groups: TaskGroup[]
 }
 
-export interface Namespace {
-  id: string
-  name: string
-  slug: string
-  description?: string
-  gitlabGroupId: string
-  coursesCount: number
-  usersCount: number
-}
-
-export interface NamespaceUser {
-  id: string
-  username: string
-  rmsId: string
-  role: 'namespace_admin' | 'program_manager' | 'student'
-}
-
-export interface NamespaceCourse {
-  id: string
-  name: string
-  status: 'running' | 'created' | 'hidden' | 'finished'
-  gitlabGroup: string
-  owners: string[]
-  url: string
-}
-
 export interface InstancePanelSummary {
   totalCourses: number
   totalUsers: number
-  totalNamespaces: number
   healthStatus: 'ok' | 'degraded'
 }

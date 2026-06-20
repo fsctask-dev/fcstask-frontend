@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
-import { createCourse, updateCourse, getCourse } from '../api/endpoints'
+import { createCourse, updateCourse, resolveCourse } from '../api/endpoints'
+import type { CourseDTO } from '../api/endpoints'
 
 export interface CourseFormState {
   name: string
@@ -33,7 +34,7 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
       [key]: value,
     }))
   }
-  const submit = async (): Promise<void> => {
+  const submit = async (): Promise<CourseDTO | null> => {
     setLoading(true)
     setError(null)
     try {
@@ -50,12 +51,13 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
         })
         setCourseId(result.id)
         setOriginalForm({ ...form })
+        return result
       } else {
         if (!courseId) {
           setError('Course ID not set')
-          return
+          return null
         }
-        await updateCourse(courseId, {
+        const result = await updateCourse(courseId, {
           name: form.name,
           type: form.type,
           status: form.status,
@@ -65,9 +67,11 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
           description: form.description,
         })
         setOriginalForm({ ...form })
+        return result
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to save course')
+      return null
     } finally {
       setLoading(false)
     }
@@ -76,8 +80,8 @@ export function useCourseFormVM(mode: 'create' | 'edit') {
     setLoading(true)
     setError(null)
     try {
-      const course = await getCourse(id)
-      setCourseId(id)
+      const course = await resolveCourse(id)
+      setCourseId(course.id)
       const courseData: CourseFormState = {
         name: course.name,
         slug: course.slug || '',

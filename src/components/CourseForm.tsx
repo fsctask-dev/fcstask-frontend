@@ -5,7 +5,7 @@ interface CourseFormProps {
   form: CourseFormState
   onChange: <K extends keyof CourseFormState>(key: K, value: CourseFormState[K]) => void
   submitLabel: string
-  onSubmit: () => void | Promise<void>
+  onSubmit: () => unknown
   loading?: boolean
   onCancel?: () => void
   isEdit?: boolean

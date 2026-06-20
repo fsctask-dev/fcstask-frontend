@@ -4,7 +4,7 @@ import { useAdminHomeworkDetailVM } from '../viewmodels/useAdminHomeworkDetailVM
 import './Pages.css'
 
 export function AdminHomeworkDetailPage() {
-  const { courseId, homework, tasks, deadlineDate, deadline, loading, saving, error, setError, save, togglePublishHw, addTask, togglePublishTask, removeTask, saveDeadline, removeDeadline } =
+  const { courseSlug, homework, tasks, deadlines, loading, saving, error, setError, save, togglePublishHw, addTask, togglePublishTask, removeTask, saveDeadline, removeDeadlineById } =
     useAdminHomeworkDetailVM()
   const [editTitle, setEditTitle] = useState('')
   const [editDesc, setEditDesc] = useState('')
@@ -65,7 +65,7 @@ export function AdminHomeworkDetailPage() {
           </p>
         </div>
         <div className="header-actions">
-          <button className="btn btn-ghost" type="button" onClick={() => navigate(`/course/${courseId}/admin`)}>
+          <button className="btn btn-ghost" type="button" onClick={() => navigate(`/course/${courseSlug}/admin`)}>
             ← Back
           </button>
           <button className="btn btn-ghost" type="button" onClick={startEdit}>
@@ -115,40 +115,62 @@ export function AdminHomeworkDetailPage() {
 
       <div className="panel">
         <div className="panel__head">
-          <div>
-            <h2>Deadline</h2>
-            {deadlineDate && <p className="meta" style={{ marginTop: '2px' }}>Due: {deadlineDate}</p>}
-          </div>
-          <div className="header-actions">
-            {deadline && (
-              <button className="btn btn-ghost" style={{ color: 'var(--red)', fontSize: '0.75rem', height: '28px', padding: '0 10px' }} type="button" onClick={removeDeadline}>
-                Remove
-              </button>
-            )}
-            <button className="btn btn-ghost" type="button" onClick={() => {
-              setDeadlineTitle('')
-              setDeadlineDue(deadlineDate ?? '')
-              setShowDeadlineForm((v) => !v)
-            }}>
-              {deadlineDate ? 'Edit deadline' : 'Set deadline'}
-            </button>
-          </div>
+          <h2>Deadlines</h2>
+          <button className="btn btn-ghost" type="button" onClick={() => {
+            setDeadlineTitle('')
+            setDeadlineDue('')
+            setShowDeadlineForm((v) => !v)
+          }}>
+            + Add deadline
+          </button>
         </div>
 
-        {!deadlineDate && !showDeadlineForm && (
-          <p className="empty">No deadline set.</p>
+        {deadlines.length === 0 && !showDeadlineForm && (
+          <p className="empty">No deadlines set.</p>
+        )}
+
+        {deadlines.length > 0 && (
+          <div className="table" style={{ marginTop: '12px' }}>
+            <div className="table__row table__head">
+              <span>Title</span>
+              <span>Due date</span>
+              <span>Status</span>
+              <span>Actions</span>
+            </div>
+            {deadlines.map((dl) => (
+              <div key={dl.id} className="table__row">
+                <span>{dl.label}</span>
+                <span className="meta">{new Date(dl.dueAt).toLocaleDateString('ru-RU')}</span>
+                <span>
+                  <span className={`status status--${dl.status === 'expired' ? 'hidden' : dl.status === 'urgent' ? 'doreshka' : 'in_progress'}`}>
+                    {dl.status}
+                  </span>
+                </span>
+                <span>
+                  <button
+                    className="btn btn-ghost"
+                    style={{ fontSize: '0.75rem', height: '28px', padding: '0 10px', color: 'var(--red)' }}
+                    type="button"
+                    onClick={() => confirm('Delete deadline?') && removeDeadlineById(dl.id)}
+                  >
+                    Delete
+                  </button>
+                </span>
+              </div>
+            ))}
+          </div>
         )}
 
         {showDeadlineForm && (
-          <div style={{ display: 'grid', gap: '12px', padding: '16px 0', borderTop: '1px solid var(--border)' }}>
+          <div style={{ display: 'grid', gap: '12px', padding: '16px 0', borderTop: '1px solid var(--border)', marginTop: '12px' }}>
             <div className="form-inline">
               <label style={{ display: 'grid', gap: '4px', flex: 1 }}>
                 <span className="meta">Title</span>
                 <input className="input" placeholder="e.g. Checkpoint" value={deadlineTitle} onChange={(e) => setDeadlineTitle(e.target.value)} />
               </label>
               <label style={{ display: 'grid', gap: '4px' }}>
-                <span className="meta">Due date</span>
-                <input className="input" type="date" value={deadlineDue} onChange={(e) => setDeadlineDue(e.target.value)} />
+                <span className="meta">Due date & time</span>
+                <input className="input" type="datetime-local" value={deadlineDue} onChange={(e) => setDeadlineDue(e.target.value)} />
               </label>
             </div>
             <div className="form-inline">
@@ -198,22 +220,14 @@ export function AdminHomeworkDetailPage() {
               <span>#</span>
               <span>Task</span>
               <span>Score</span>
-              <span>Type</span>
               <span>Status</span>
               <span>Actions</span>
             </div>
-            {tasks.map((task) => (
+            {tasks.map((task, i) => (
               <div key={task.task_id} className="table__row">
-                <span className="meta">{task.position}</span>
+                <span className="meta">{i + 1}</span>
                 <span>{task.title || task.task_id.slice(0, 8)}</span>
-                <span>{task.score}</span>
-                <span>
-                  {task.is_bonus ? (
-                    <span className="status status--doreshka">bonus</span>
-                  ) : (
-                    <span className="status status--created">standard</span>
-                  )}
-                </span>
+                <span>{task.score ?? '—'}</span>
                 <span>
                   <span className={`status ${task.is_public ? 'status--in_progress' : 'status--hidden'}`}>
                     {task.is_public ? 'public' : 'hidden'}
@@ -224,7 +238,7 @@ export function AdminHomeworkDetailPage() {
                     className="btn btn-ghost"
                     style={{ fontSize: '0.75rem', height: '28px', padding: '0 10px' }}
                     type="button"
-                    onClick={() => togglePublishTask(task.task_id, task.is_public)}
+                    onClick={() => togglePublishTask(task.task_id, !!task.is_public)}
                   >
                     {task.is_public ? 'Hide' : 'Show'}
                   </button>

@@ -19,79 +19,102 @@ export function TasksPage() {
         <div className="header-actions">
           <div className="progress-card">
             <div className="progress-card__value">{board.solvedPercent}%</div>
-            <div className="progress-card__meta">
-              {board.solvedScore}/{board.maxScore}
+            <div className="progress-card__meta">{board.solvedScore} / {board.maxScore} pts</div>
+            <div className="progress-card__bar">
+              <div className="progress-card__bar-fill" style={{ width: `${board.solvedPercent}%` }} />
             </div>
           </div>
           <button className="btn btn-ghost" type="button" onClick={togglePastDeadlines}>
-            {showPastDeadlines ? 'Hide past deadlines' : 'Show past deadlines'}
+            {showPastDeadlines ? 'Hide past' : 'Show past deadlines'}
           </button>
         </div>
       </div>
 
-      {groups.map((group) => (
-        <div key={group.id} className={`panel panel--group ${group.isSpecial ? 'panel--special' : ''}`}>
-          <div className="panel__head">
-            <div>
-              <h2>{group.name}</h2>
-              <p className="group-score">Score: {group.scoreEarned}/{group.scoreMax}</p>
+      {groups.map((group) => {
+        const groupPct = group.scoreMax > 0 ? Math.round((group.scoreEarned / group.scoreMax) * 100) : 0
+        return (
+          <div key={group.id} className={`panel panel--group ${group.isSpecial ? 'panel--special' : ''}`}>
+            <div className="panel__head">
+              <div className="group-header">
+                <h2>{group.name}</h2>
+                <div className="group-meta">
+                  <span className="group-score">{group.scoreEarned} / {group.scoreMax} pts</span>
+                  <span className="group-pct">{groupPct}%</span>
+                </div>
+                <div className="group-bar">
+                  <div className="group-bar__fill" style={{ width: `${groupPct}%` }} />
+                </div>
+              </div>
+
+              {group.deadlines.length > 0 && (
+                <div className="deadlines">
+                  {group.deadlines.map((deadline) => {
+                    const shouldHide = !showPastDeadlines && deadline.status === 'expired'
+                    const diff = new Date(deadline.dueAt).getTime() - Date.now()
+                    const days = Math.floor(diff / 86400000)
+                    const hours = Math.floor((diff % 86400000) / 3600000)
+                    const mins = Math.floor((diff % 3600000) / 60000)
+                    const countdown = diff <= 0
+                      ? 'Expired'
+                      : days > 0 ? `${days}d ${hours}h`
+                      : hours > 0 ? `${hours}h ${mins}m`
+                      : `${mins}m`
+                    return (
+                      <div
+                        key={deadline.id}
+                        className={`deadline deadline--${deadline.status} ${shouldHide ? 'deadline--hidden' : ''}`}
+                      >
+                        <div className="deadline__top">
+                          <span>{deadline.label}</span>
+                          <span>{Math.round(deadline.percent * 100)}%</span>
+                        </div>
+                        <div className="deadline__time">
+                          {new Date(deadline.dueAt).toLocaleDateString('ru-RU', {
+                            day: '2-digit', month: '2-digit', year: 'numeric',
+                          }).replace(/\./g, '.')}
+                          {' · '}
+                          {new Date(deadline.dueAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                        <div className="deadline__expires">{countdown}</div>
+                        <div className="deadline__bar">
+                          <span style={{ width: `${deadline.percent * 100}%` }} />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
-            <div className="deadlines">
-              {group.deadlines.map((deadline) => {
-                const shouldHide = !showPastDeadlines && deadline.status === 'expired'
+
+            <div className="task-grid">
+              {group.tasks.map((task) => {
+                const taskPct = task.score > 0 ? Math.min(100, Math.round((task.scoreEarned / task.score) * 100)) : 0
                 return (
-                  <div
-                    key={deadline.id}
-                    className={`deadline deadline--${deadline.status} ${shouldHide ? 'deadline--hidden' : ''}`}
-                  >
-                    <div className="deadline__top">
-                      <span>{deadline.label}</span>
-                      <span>{Math.round(deadline.percent * 100)}%</span>
+                  <article key={task.id} className={`task-card task-card--${task.status}`}>
+                    <div className="task-card__top">
+                      <h3>{task.name}</h3>
+                      {(task.isBonus || task.isSpecial) && (
+                        <span className={`status ${task.isSpecial ? 'status--doreshka' : 'status--created'}`}>
+                          {task.isSpecial ? 'special' : 'bonus'}
+                        </span>
+                      )}
                     </div>
-                    <div className="deadline__time">
-                      {new Date(deadline.dueAt).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\./g, '-')}
-                      {' '}
-                      <svg style={{ display: 'inline', verticalAlign: 'middle', marginRight: '2px' }} width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-                      </svg>
-                      {new Date(deadline.dueAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                    <div className="task-card__body">
+                      <div className="task-card__score">
+                        <span>{task.scoreEarned}</span>
+                        <small>/{task.score}</small>
+                      </div>
+                      <div className="task-card__mini-bar">
+                        <div className="task-card__mini-fill" style={{ width: `${taskPct}%` }} />
+                      </div>
                     </div>
-                    {(() => {
-                      const diff = new Date(deadline.dueAt).getTime() - Date.now()
-                      if (diff <= 0) return <div className="deadline__expires">Expired</div>
-                      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-                      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-                      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-                      const label = days > 0 ? `${days}d ${hours}h` : hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
-                      return <div className="deadline__expires">Expires in: {label}</div>
-                    })()}
-                    <div className="deadline__bar">
-                      <span style={{ width: `${deadline.percent * 100}%` }} />
-                    </div>
-                  </div>
+                  </article>
                 )
               })}
             </div>
           </div>
-
-          <div className="task-grid">
-            {group.tasks.map((task) => (
-              <article key={task.id} className={`task-card task-card--${task.status}`}>
-                <div>
-                  <h3>{task.name}</h3>
-                  {(task.isBonus || task.isSpecial) && (
-                    <p className="meta">{task.isSpecial ? 'Special' : 'Bonus'}</p>
-                  )}
-                </div>
-                <div className="task-card__score">
-                  <span>{task.scoreEarned}</span>
-                  <small>/{task.score}</small>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      ))}
+        )
+      })}
     </section>
   )
 }

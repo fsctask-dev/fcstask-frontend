@@ -1,9 +1,18 @@
+import { useNavigate } from 'react-router-dom'
 import { CourseForm } from '../components/CourseForm'
 import { useCourseFormVM } from '../viewmodels/useCourseFormVM'
 import './Pages.css'
 
 export function CreateCoursePage() {
-  const { form, updateField, submit, loading } = useCourseFormVM('create')
+  const navigate = useNavigate()
+  const { form, updateField, submit, loading, error } = useCourseFormVM('create')
+
+  const handleSubmit = async () => {
+    const result = await submit()
+    if (result) {
+      navigate(result.url)
+    }
+  }
 
   return (
     <section className="page-grid">
@@ -15,8 +24,10 @@ export function CreateCoursePage() {
         </div>
       </div>
 
+      {error && <p className="error-msg">{error}</p>}
+
       <div className="panel">
-        <CourseForm form={form} onChange={updateField} submitLabel="Create course" onSubmit={submit} loading={loading} />
+        <CourseForm form={form} onChange={updateField} submitLabel="Create course" onSubmit={handleSubmit} loading={loading} />
       </div>
     </section>
   )

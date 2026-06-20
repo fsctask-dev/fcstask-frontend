@@ -37,7 +37,18 @@ export function EditCoursePage() {
       {error && <p className="error-msg">{error}</p>}
 
       <div className="panel">
-        <CourseForm form={form} onChange={updateField} submitLabel="Save changes" onSubmit={submit} loading={loading} onCancel={handleCancel} isEdit />
+        <CourseForm
+          form={form}
+          onChange={updateField}
+          submitLabel="Save changes"
+          onSubmit={async () => {
+            const result = await submit()
+            if (result) navigate(`/course/${courseId}`)
+          }}
+          loading={loading}
+          onCancel={handleCancel}
+          isEdit
+        />
       </div>
     </section>
   )

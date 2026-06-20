@@ -4,7 +4,7 @@ import { useAdminHomeworkVM } from '../viewmodels/useAdminHomeworkVM'
 import './Pages.css'
 
 export function AdminHomeworkPage() {
-  const { courseId, homeworks, loading, error, creating, create, remove, togglePublish } = useAdminHomeworkVM()
+  const { courseSlug, homeworks, loading, error, creating, create, remove, togglePublish } = useAdminHomeworkVM()
   const [newTitle, setNewTitle] = useState('')
   const [newStartDate, setNewStartDate] = useState('')
   const [newEndDate, setNewEndDate] = useState('')
@@ -85,7 +85,7 @@ export function AdminHomeworkPage() {
               <div key={hw.hw_id} className="table__row">
                 <span className="meta">{hw.position}</span>
                 <span>
-                  <Link to={`/course/${courseId}/admin/homework/${hw.hw_id}`} style={{ color: 'var(--accent)' }}>
+                  <Link to={`/course/${courseSlug}/admin/homework/${hw.hw_id}`} style={{ color: 'var(--accent)' }}>
                     {hw.title || '—'}
                   </Link>
                   {hw.description && <p className="meta" style={{ marginTop: '2px' }}>{hw.description}</p>}

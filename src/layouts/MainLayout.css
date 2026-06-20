@@ -1,4 +1,4 @@
-/* Shell */
+/* ─── Shell ─── */
 .shell {
   min-height: 100vh;
   background: var(--bg);
@@ -14,7 +14,7 @@
   padding: 40px 16px;
 }
 
-/* Topbar */
+/* ─── Topbar ─── */
 .topbar {
   position: sticky;
   top: 0;
@@ -23,43 +23,53 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 0;
   padding: 0 24px;
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 var(--border), var(--shadow-xs);
 }
 
-/* Brand */
+[data-theme="dark"] .topbar {
+  background: rgba(22, 25, 34, 0.85);
+}
+
+/* ─── Brand ─── */
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   color: var(--text-1);
   font-weight: 700;
   font-size: 0.95rem;
-  letter-spacing: -0.01em;
-  padding-right: 32px;
+  letter-spacing: -0.02em;
+  padding-right: 28px;
+  transition: opacity var(--transition);
 }
 
+.brand:hover { opacity: 0.8; }
+
 .brand__mark {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: var(--radius-sm);
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
   color: #fff;
   display: grid;
   place-items: center;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
   flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(47,84,235,0.35);
 }
 
 .brand__title {
   color: var(--text-1);
 }
 
-/* Nav */
+/* ─── Nav ─── */
 .topbar__nav {
   display: flex;
   align-items: center;
@@ -68,46 +78,67 @@
 }
 
 .nav-link {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  height: 36px;
-  padding: 0 12px;
-  border-radius: var(--radius-sm);
+  height: 100%;
+  padding: 0 13px;
   color: var(--text-2);
   font-size: 0.875rem;
   font-weight: 500;
-  transition: background 0.15s, color 0.15s;
+  transition: color var(--transition);
+  white-space: nowrap;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 13px;
+  right: 13px;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: var(--accent);
+  opacity: 0;
+  transform: scaleX(0.6);
+  transition: opacity var(--transition), transform var(--transition);
 }
 
 .nav-link:hover {
-  background: var(--bg);
   color: var(--text-1);
 }
 
 .nav-link.active {
-  background: var(--accent-bg);
   color: var(--accent);
+  font-weight: 600;
 }
 
-/* Actions */
+.nav-link.active::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+/* ─── Actions ─── */
 .topbar__actions {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-left: 24px;
+  padding-left: 20px;
 }
 
-/* Course switcher */
+/* ─── Course switcher ─── */
 .course-switch {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
 
 .course-switch__label {
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   color: var(--text-3);
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .course-switch__control {
@@ -123,12 +154,12 @@
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text-1);
-  font-weight: 500;
-  font-size: 0.875rem;
+  font-weight: 600;
+  font-size: 0.84rem;
   appearance: none;
   cursor: pointer;
-  min-width: 160px;
-  transition: border-color 0.15s;
+  min-width: 150px;
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 
 .course-switch__select:hover {
@@ -138,18 +169,18 @@
 .course-switch__select:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(47, 84, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(47, 84, 235, 0.12);
 }
 
 .course-switch__chevron {
   position: absolute;
   right: 8px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-3);
   pointer-events: none;
 }
 
-/* Theme toggle */
+/* ─── Theme toggle ─── */
 .theme-toggle {
   width: 32px;
   height: 32px;
@@ -159,50 +190,45 @@
   cursor: pointer;
   display: grid;
   place-items: center;
-  font-size: 0.95rem;
-  transition: background 0.15s, border-color 0.15s;
+  font-size: 0.9rem;
+  transition: background var(--transition), border-color var(--transition), transform 0.2s;
   flex-shrink: 0;
 }
 
 .theme-toggle:hover {
   background: var(--bg);
   border-color: var(--border-2);
+  transform: rotate(15deg);
 }
 
-/* User chip */
+/* ─── User chip ─── */
 .user-chip {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 10px 4px 4px;
+  padding: 3px 10px 3px 4px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--surface);
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color var(--transition), background var(--transition);
   user-select: none;
-}
-
-.user-chip:hover {
-  border-color: var(--border-2);
-  background: var(--bg);
 }
 
 .user-chip__initials {
   width: 26px;
   height: 26px;
-  border-radius: var(--radius-sm);
-  background: var(--accent);
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
   color: #fff;
   display: grid;
   place-items: center;
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-size: 0.68rem;
+  font-weight: 800;
   flex-shrink: 0;
 }
 
 .user-chip__name {
-  font-size: 0.875rem;
+  font-size: 0.84rem;
   font-weight: 600;
   color: var(--text-1);
 }
@@ -211,35 +237,43 @@
   display: none;
 }
 
-/* Page */
+/* ─── Page ─── */
 .page {
   flex: 1;
-  padding: 32px 24px 64px;
-  max-width: 1100px;
+  padding: 36px 24px 72px;
+  max-width: 1120px;
   width: 100%;
   margin: 0 auto;
 }
 
+/* ─── Responsive ─── */
 @media (max-width: 768px) {
   .topbar {
     grid-template-columns: auto 1fr;
-    flex-wrap: wrap;
     height: auto;
-    padding: 12px 16px;
-    gap: 12px;
+    padding: 10px 16px;
+    gap: 10px;
   }
 
   .topbar__nav {
     grid-column: 1 / -1;
     overflow-x: auto;
     padding-bottom: 2px;
+    scrollbar-width: none;
   }
+  .topbar__nav::-webkit-scrollbar { display: none; }
 
   .topbar__actions {
     padding-left: 0;
   }
 
   .page {
-    padding: 20px 16px 48px;
+    padding: 20px 16px 56px;
   }
+
+  .nav-link {
+    height: 36px;
+  }
+
+  .nav-link::after { display: none; }
 }

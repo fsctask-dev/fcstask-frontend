@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { getCourse, listHomework, createHomework, deleteHomework, publishHomework } from '../api/endpoints'
+import { resolveCourse, listHomework, createHomework, deleteHomework, publishHomework } from '../api/endpoints'
 import type { HomeworkDTO } from '../api/endpoints'
 
 export function useAdminHomeworkVM() {
@@ -13,7 +13,7 @@ export function useAdminHomeworkVM() {
 
   useEffect(() => {
     if (!courseSlug) return
-    getCourse(courseSlug)
+    resolveCourse(courseSlug)
       .then((c) => setCourseId(c.id))
       .catch((e) => setError(e.message))
   }, [courseSlug])
@@ -62,5 +62,5 @@ export function useAdminHomeworkVM() {
     }
   }, [courseId, fetch])
 
-  return { courseId, homeworks, loading, error, creating, create, remove, togglePublish }
+  return { courseId, courseSlug, homeworks, loading, error, creating, create, remove, togglePublish }
 }

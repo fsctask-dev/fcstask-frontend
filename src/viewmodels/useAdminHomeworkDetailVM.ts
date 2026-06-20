@@ -1,18 +1,19 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import {
-  getCourse, getHomework, updateHomework, publishHomework,
+  resolveCourse, getHomework, updateHomework, publishHomework,
   listTasks, createTask, publishTask, deleteTask,
-  getDeadlineByHwId, setDeadline, deleteDeadline,
+  getDeadlineByHwId, setDeadline, deleteDeadline, getCourseBoard,
 } from '../api/endpoints'
-import type { HomeworkDTO, TaskDTO, DeadlineDTO } from '../api/endpoints'
+import type { HomeworkDTO, TaskDTO } from '../api/endpoints'
+import type { Deadline } from '../models/types'
 
 export function useAdminHomeworkDetailVM() {
   const { courseId: courseSlug, hwId } = useParams<{ courseId: string; hwId: string }>()
   const [courseId, setCourseId] = useState<string | null>(null)
   const [homework, setHomework] = useState<HomeworkDTO | null>(null)
   const [tasks, setTasks] = useState<TaskDTO[]>([])
-  const [deadline, setDeadlineState] = useState<DeadlineDTO | null>(null)
+  const [deadlines, setDeadlines] = useState<Deadline[]>([])
   const [deadlineDate, setDeadlineDate] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -20,27 +21,30 @@ export function useAdminHomeworkDetailVM() {
 
   useEffect(() => {
     if (!courseSlug) return
-    getCourse(courseSlug)
+    resolveCourse(courseSlug)
       .then((c) => setCourseId(c.id))
       .catch((e) => setError(e.message))
   }, [courseSlug])
 
   const fetchAll = useCallback(() => {
-    if (!courseId || !hwId) return
+    if (!courseId || !hwId || !courseSlug) return
     setLoading(true)
     Promise.all([
       getHomework(courseId, hwId),
       listTasks(courseId, hwId),
       getDeadlineByHwId(hwId).catch(() => null),
+      getCourseBoard(courseSlug).catch(() => null),
     ])
-      .then(([hw, taskList, dl]) => {
+      .then(([hw, taskList, dl, board]) => {
         setHomework(hw)
         setTasks(taskList)
         setDeadlineDate(dl as string | null)
+        const group = board?.groups.find((g) => g.id === hwId)
+        setDeadlines(group?.deadlines ?? [])
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
-  }, [courseId, hwId])
+  }, [courseId, hwId, courseSlug])
 
   useEffect(() => { fetchAll() }, [fetchAll])
 
@@ -101,29 +105,26 @@ export function useAdminHomeworkDetailVM() {
     if (!courseId || !hwId) return
     try {
       const rfc3339 = new Date(dueDate).toISOString()
-      const dl = await setDeadline(courseId, hwId, { title, due_date: rfc3339 })
-      setDeadlineState(dl)
-      setDeadlineDate(dueDate)
+      await setDeadline(courseId, hwId, { title, due_date: rfc3339 })
+      fetchAll()
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to set deadline')
     }
-  }, [courseId, hwId])
+  }, [courseId, hwId, fetchAll])
 
-  const removeDeadline = useCallback(async () => {
-    if (!deadline) return
+  const removeDeadlineById = useCallback(async (id: string) => {
     try {
-      await deleteDeadline(deadline.id)
-      setDeadlineState(null)
-      setDeadlineDate(null)
+      await deleteDeadline(id)
+      fetchAll()
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to delete deadline')
     }
-  }, [deadline])
+  }, [fetchAll])
 
   return {
-    courseId, hwId, homework, tasks, deadline, deadlineDate,
+    courseId, courseSlug, hwId, homework, tasks, deadlines, deadlineDate,
     loading, saving, error, setError,
     save, togglePublishHw, addTask, togglePublishTask, removeTask,
-    saveDeadline, removeDeadline,
+    saveDeadline, removeDeadlineById,
   }
 }

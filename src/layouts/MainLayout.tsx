@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../hooks/useTheme'
-import { getPublicCourses, getCourse, getStats, courseDTOToModel, signOut } from '../api/endpoints'
+import { getPublicCourses, getCourses, getStats, listHomework, courseDTOToModel, signOut } from '../api/endpoints'
 import type { Course } from '../models/types'
 import './MainLayout.css'
 
@@ -18,6 +18,7 @@ export function MainLayout() {
   const [isCourseAdmin, setIsCourseAdmin] = useState(false)
   const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const currentCourse = courses.find((c) => c.url === courseBase)
+  const currentCourseId = currentCourse?.id ?? null
   const courseSlug = isCourseRoute ? location.pathname.split('/')[2] : ''
 
   const handleSignOut = async () => {
@@ -27,19 +28,30 @@ export function MainLayout() {
   }
 
   useEffect(() => {
-    if (isCourseRoute) {
-      getPublicCourses()
-        .then((dtos) => setCourses((dtos ?? []).map(courseDTOToModel)))
-        .catch(() => {})
-    }
-  }, [isCourseRoute])
+    if (!isCourseRoute) return
+    const load = user ? getCourses() : getPublicCourses()
+    load
+      .then((dtos) => setCourses((dtos ?? []).map(courseDTOToModel)))
+      .catch(() => {})
+  }, [isCourseRoute, user])
 
   useEffect(() => {
-    if (!isCourseRoute || !courseSlug) { setIsCourseAdmin(false); return }
-    getCourse(courseSlug)
+    if (!isCourseRoute || !courseSlug || !user) {
+      setIsCourseAdmin(false)
+      return
+    }
+    if (isSuperAdmin) {
+      setIsCourseAdmin(true)
+      return
+    }
+    if (!currentCourseId) {
+      setIsCourseAdmin(false)
+      return
+    }
+    listHomework(currentCourseId)
       .then(() => setIsCourseAdmin(true))
       .catch(() => setIsCourseAdmin(false))
-  }, [isCourseRoute, courseSlug])
+  }, [isCourseRoute, courseSlug, user, isSuperAdmin, currentCourseId])
 
   useEffect(() => {
     if (!user) { setIsSuperAdmin(false); return }
@@ -93,10 +105,7 @@ export function MainLayout() {
                   Homework
                 </NavLink>
               )}
-              <NavLink to="/admin/namespaces" className="nav-link">
-                Namespaces
-              </NavLink>
-              </> ); })()}
+</> ); })()}
             </>
           ) : (
             <>
@@ -145,13 +154,18 @@ export function MainLayout() {
           </button>
 
           {user ? (
-            <div className="user-chip" style={{ cursor: 'pointer' }} onClick={handleSignOut} title="Sign out">
-              <span className="user-chip__initials">{user.initials}</span>
-              <div>
-                <div className="user-chip__name">{user.username}</div>
-                <div className="user-chip__role">{user.role.replace('_', ' ')}</div>
+            <>
+              <div className="user-chip">
+                <span className="user-chip__initials">{user.initials}</span>
+                <div>
+                  <div className="user-chip__name">{user.username}</div>
+                  <div className="user-chip__role">{user.role.replace('_', ' ')}</div>
+                </div>
               </div>
-            </div>
+              <button className="btn btn-ghost" type="button" onClick={handleSignOut}>
+                Sign out
+              </button>
+            </>
           ) : (
             <>
               <Link to="/signin" className="btn btn-ghost">Sign in</Link>

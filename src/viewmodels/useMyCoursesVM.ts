@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react'
-import { getCourses, getCourse, joinCourse, courseDTOToModel } from '../api/endpoints'
+import { getCourses, joinCourse, courseDTOToModel } from '../api/endpoints'
 import type { Course } from '../models/types'
 
 export interface MyCoursesVM {
@@ -54,9 +54,8 @@ export function useMyCoursesVM(): MyCoursesVM {
     setJoinError(null)
     setJoinCourseUrl(null)
     try {
-      const course = await getCourse(slug)
       try {
-        await joinCourse(course.id, course.type === 'public' ? undefined : code)
+        await joinCourse(slug, code)
         fetchCourses()
       } catch (joinErr: unknown) {
         const msg = joinErr instanceof Error ? joinErr.message : ''
@@ -65,7 +64,7 @@ export function useMyCoursesVM(): MyCoursesVM {
           return
         }
       }
-      setJoinCourseUrl(course.url)
+      setJoinCourseUrl(`/course/${slug}`)
     } catch (e: unknown) {
       setJoinError(e instanceof Error ? e.message : 'Failed to join course')
     } finally {

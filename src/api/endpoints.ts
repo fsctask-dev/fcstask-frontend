@@ -46,8 +46,11 @@ export async function signIn(req: SignInRequest): Promise<AuthResponse> {
 }
 
 export async function signOut(): Promise<void> {
-  await api.post('/api/signout', {})
-  clearToken()
+  try {
+    await api.post('/api/signout', {})
+  } finally {
+    clearToken()
+  }
 }
 
 export async function getMe(): Promise<MeResponse> {
@@ -92,7 +95,7 @@ export async function createCourse(req: {
   repoTemplate: string
   description: string
 }): Promise<CourseDTO> {
-  return api.post<CourseDTO>('/api/courses', req)
+  return api.post<CourseDTO>('/admin/courses/create', req)
 }
 
 export async function updateCourse(
@@ -107,7 +110,7 @@ export async function updateCourse(
     description: string
   }>,
 ): Promise<CourseDTO> {
-  return api.put<CourseDTO>(`/api/courses/${courseId}`, req)
+  return api.put<CourseDTO>(`/admin/courses/${courseId}/update`, req)
 }
 
 // Task board
@@ -118,10 +121,24 @@ export async function getCourseBoard(courseId: string): Promise<TaskBoardSummary
 
 // Scores / Leaderboard
 
+export interface LeaderboardTaskScore {
+  task_id: string
+  title: string
+  score: number
+}
+
+export interface LeaderboardHomeworkScore {
+  homework_id: string
+  homework_title: string
+  total_score: number
+  tasks: LeaderboardTaskScore[]
+}
+
 export interface LeaderboardEntry {
   username: string
   totalScore: number
   rank: number
+  homeworks: LeaderboardHomeworkScore[]
 }
 
 export async function getCourseScores(courseId: string): Promise<LeaderboardEntry[]> {
@@ -139,10 +156,10 @@ export async function joinCourse(courseId: string, code?: string): Promise<void>
 export interface HomeworkDTO {
   hw_id: string
   course_id: string
-  title?: string
+  title: string
   description?: string
   position: number
-  is_public: boolean
+  is_public?: boolean
   start_date?: string
   end_date?: string
 }
@@ -177,10 +194,8 @@ export interface TaskDTO {
   task_id: string
   hw_id: string
   title: string
-  position: number
-  score: number
-  is_bonus: boolean
-  is_public: boolean
+  score?: number
+  is_public?: boolean
   repo_url?: string
   task_url?: string
 }
@@ -274,11 +289,11 @@ export async function assignCourseAdmin(courseId: string, userId: string): Promi
 }
 
 export async function revokeCourseAdmin(courseId: string, userId: string): Promise<void> {
-  return api.delete(`/admin/courses/${courseId}/roles`)
+  return api.delete(`/admin/courses/${courseId}/roles`, { user_id: userId })
 }
 
 export async function removeCourseParticipant(courseId: string, userId: string): Promise<void> {
-  return api.delete(`/admin/courses/${courseId}/participants`)
+  return api.delete(`/admin/courses/${courseId}/participants`, { user_id: userId })
 }
 
 export async function listRolePermissions(courseId: string, roleId: string): Promise<string[]> {
@@ -294,7 +309,7 @@ export async function createSuperAdmin(userId: string): Promise<UserRoleDTO> {
 // Invite code
 
 export async function regenerateInviteCode(courseId: string): Promise<string> {
-  const res = await api.post<{ invite_code: string }>(`/api/courses/${courseId}/invite`, {})
+  const res = await api.post<{ invite_code: string }>(`/admin/courses/${courseId}/invite`, {})
   return res.invite_code
 }
 
@@ -319,6 +334,18 @@ export async function getStats(): Promise<PlatformStats> {
 }
 
 // Helpers
+
+// getCourse() skips auth (not in protectedPaths); fall back to getCourses() for private courses.
+export async function resolveCourse(slugOrId: string): Promise<CourseDTO> {
+  try {
+    return await getCourse(slugOrId)
+  } catch {
+    const list = await getCourses()
+    const found = list.find((d) => d.slug === slugOrId || d.id === slugOrId)
+    if (!found) throw new Error('Course not found')
+    return found
+  }
+}
 
 export function courseDTOToModel(dto: CourseDTO): Course {
   return {

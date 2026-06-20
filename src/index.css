@@ -1,61 +1,86 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@500;700&display=swap');
 
 :root {
   --font: 'Plus Jakarta Sans', system-ui, sans-serif;
 
-  --bg:        #f4f5f7;
+  --bg:        #f0f2f7;
+  --bg-2:      #e8eaf0;
   --surface:   #ffffff;
-  --border:    #e2e4e9;
-  --border-2:  #d0d3db;
+  --surface-2: #f8f9fb;
+  --border:    #e2e4eb;
+  --border-2:  #cdd0db;
 
   --text-1:    #0d0f14;
-  --text-2:    #5a5f6e;
-  --text-3:    #9299a8;
+  --text-2:    #52586a;
+  --text-3:    #959daf;
 
-  --accent:    #2f54eb;
-  --accent-bg: #eef1fd;
-  --accent-hover: #1f3fd4;
+  --accent:        #2f54eb;
+  --accent-light:  #4c6ef5;
+  --accent-bg:     #eef1fd;
+  --accent-bg-2:   #dce3fc;
+  --accent-hover:  #1f3fd4;
 
-  --green:     #12b76a;
-  --green-bg:  #e8f8f1;
-  --orange:    #f79009;
-  --orange-bg: #fef4e2;
-  --red:       #f04438;
-  --red-bg:    #fde8e6;
-  --gray:      #8a91a0;
-  --gray-bg:   #f0f1f4;
+  --green:      #0da05e;
+  --green-bg:   #e6f7ef;
+  --orange:     #e68d00;
+  --orange-bg:  #fef4e0;
+  --red:        #d93025;
+  --red-bg:     #fce8e6;
+  --purple:     #7c3aed;
+  --purple-bg:  #f0ebfe;
+  --gray:       #7a8196;
+  --gray-bg:    #eef0f4;
 
-  --radius-sm: 6px;
-  --radius:    10px;
-  --radius-lg: 14px;
+  --radius-xs: 4px;
+  --radius-sm: 7px;
+  --radius:    12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow:    0 4px 12px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow:    0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-accent: 0 4px 16px rgba(47,84,235,0.22);
+
+  --transition: 0.18s ease;
 }
 
 /* ─── Dark theme ─── */
 [data-theme="dark"] {
-  --bg:        #0f1117;
-  --surface:   #181c25;
-  --border:    #272c38;
-  --border-2:  #323848;
+  --bg:        #0c0e14;
+  --bg-2:      #11141e;
+  --surface:   #161922;
+  --surface-2: #1c2030;
+  --border:    #252a38;
+  --border-2:  #2e3448;
 
-  --text-1:    #e8eaf0;
-  --text-2:    #8b92a8;
-  --text-3:    #555d72;
+  --text-1:    #e6e9f2;
+  --text-2:    #7d86a0;
+  --text-3:    #454d63;
 
-  --accent:    #4c6ef5;
-  --accent-bg: #1a2045;
-  --accent-hover: #3d5ce0;
+  --accent:        #4c6ef5;
+  --accent-light:  #6380f8;
+  --accent-bg:     #17203e;
+  --accent-bg-2:   #1f2e52;
+  --accent-hover:  #3d5ce0;
 
-  --green:     #12b76a;
-  --green-bg:  #0d2b1e;
-  --orange:    #f79009;
-  --orange-bg: #2a1f0a;
-  --red:       #f04438;
-  --red-bg:    #2a0f0d;
-  --gray:      #6b7280;
-  --gray-bg:   #1e2230;
+  --green:      #10b877;
+  --green-bg:   #0c2920;
+  --orange:     #f7a200;
+  --orange-bg:  #271d08;
+  --red:        #f04438;
+  --red-bg:     #28100e;
+  --purple:     #9b6cfc;
+  --purple-bg:  #1f1540;
+  --gray:       #5e6680;
+  --gray-bg:    #1a1e2a;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.15);
+  --shadow:    0 4px 16px rgba(0,0,0,0.30), 0 1px 4px rgba(0,0,0,0.20);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.40), 0 2px 8px rgba(0,0,0,0.25);
+  --shadow-accent: 0 4px 16px rgba(76,110,245,0.30);
 }
 
 *, *::before, *::after {
@@ -101,14 +126,30 @@ button, input, select, textarea {
   border-radius: 999px;
 }
 
-/* ─── Password strength ─── */
+/* ─── Skeleton loader ─── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
 
+.skeleton {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--border) 25%,
+    var(--surface-2) 50%,
+    var(--border) 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+/* ─── Password strength ─── */
 .password-strength {
   display: flex;
   gap: 4px;
   margin-top: 4px;
 }
-
 .password-strength__bar {
   flex: 1;
   height: 3px;
@@ -116,17 +157,14 @@ button, input, select, textarea {
   background: var(--border);
   transition: background 0.2s;
 }
-
-.password-strength__bar--weak { background: var(--red); }
+.password-strength__bar--weak   { background: var(--red); }
 .password-strength__bar--medium { background: var(--orange); }
 .password-strength__bar--strong { background: var(--green); }
-
 .password-strength__label {
   font-size: 0.72rem;
   color: var(--text-3);
   margin-top: 2px;
 }
-
-.password-strength__label--weak { color: var(--red); }
+.password-strength__label--weak   { color: var(--red); }
 .password-strength__label--medium { color: var(--orange); }
 .password-strength__label--strong { color: var(--green); }

@@ -23,6 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const token = localStorage.getItem('session_token')
     if (!token) {
+      setUser(null)
       setLoading(false)
       return
     }
