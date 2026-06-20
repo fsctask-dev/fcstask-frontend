@@ -145,6 +145,10 @@ export async function getCourseScores(courseId: string): Promise<LeaderboardEntr
   return api.get<LeaderboardEntry[]>(`/api/courses/${courseId}/scores`)
 }
 
+export async function checkPermissions(courseId: string, permissions: string[]): Promise<Record<string, boolean>> {
+  return api.post(`/api/courses/${courseId}/check-permissions`, { permissions })
+}
+
 // Join course
 
 export async function joinCourse(courseId: string, code?: string): Promise<void> {

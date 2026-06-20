@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../hooks/useTheme'
-import { getPublicCourses, getCourses, getStats, listHomework, courseDTOToModel, signOut } from '../api/endpoints'
+import { getPublicCourses, getCourses, getStats, courseDTOToModel, signOut, resolveCourse, checkPermissions } from '../api/endpoints'
 import type { Course } from '../models/types'
 import './MainLayout.css'
 
@@ -15,10 +15,9 @@ export function MainLayout() {
   const isSignup = location.pathname.startsWith('/signup')  || location.pathname.startsWith('/signin')
   const courseBase = isCourseRoute ? location.pathname.split('/').slice(0, 3).join('/') : ''
   const [courses, setCourses] = useState<Course[]>([])
-  const [isCourseAdmin, setIsCourseAdmin] = useState(false)
+  const [perms, setPerms] = useState<Record<string, boolean> | null>(null)
   const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const currentCourse = courses.find((c) => c.url === courseBase)
-  const currentCourseId = currentCourse?.id ?? null
   const courseSlug = isCourseRoute ? location.pathname.split('/')[2] : ''
 
   const handleSignOut = async () => {
@@ -36,22 +35,14 @@ export function MainLayout() {
   }, [isCourseRoute, user])
 
   useEffect(() => {
-    if (!isCourseRoute || !courseSlug || !user) {
-      setIsCourseAdmin(false)
-      return
-    }
-    if (isSuperAdmin) {
-      setIsCourseAdmin(true)
-      return
-    }
-    if (!currentCourseId) {
-      setIsCourseAdmin(false)
-      return
-    }
-    listHomework(currentCourseId)
-      .then(() => setIsCourseAdmin(true))
-      .catch(() => setIsCourseAdmin(false))
-  }, [isCourseRoute, courseSlug, user, isSuperAdmin, currentCourseId])
+    if (!isCourseRoute || !courseSlug) { setPerms(null); return }
+    if (isSuperAdmin) { setPerms({ 'course.update': true, 'homework.create': true }); return }
+    if (!user) { setPerms(null); return }
+    resolveCourse(courseSlug)
+      .then((course) => checkPermissions(course.id, ['course.update', 'homework.create']))
+      .then(setPerms)
+      .catch(() => setPerms(null))
+  }, [isCourseRoute, courseSlug, user, isSuperAdmin])
 
   useEffect(() => {
     if (!user) { setIsSuperAdmin(false); return }
@@ -81,8 +72,6 @@ export function MainLayout() {
         <nav className="topbar__nav">
           {isCourseRoute ? (
             <>
-              {(() => { const isAdmin = isCourseAdmin; return (
-              <>
               <NavLink to={courseBase} className="nav-link" end>
                 Assignments
               </NavLink>
@@ -95,17 +84,16 @@ export function MainLayout() {
               <NavLink to={`${courseBase}/database`} className="nav-link">
                 All Scores
               </NavLink>
-              {isAdmin && (
+              {perms?.['course.update'] && (
                 <NavLink to={`${courseBase}/edit`} className="nav-link">
                   Edit Course
                 </NavLink>
               )}
-              {isAdmin && (
+              {perms?.['homework.create'] && (
                 <NavLink to={`${courseBase}/admin`} className="nav-link">
                   Homework
                 </NavLink>
               )}
-</> ); })()}
             </>
           ) : (
             <>
